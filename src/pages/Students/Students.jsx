@@ -111,7 +111,7 @@ function Students() {
 
             {/* Stats Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
                         <GroupIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
                         <Typography variant="h4" fontWeight={700} color="primary">
@@ -122,7 +122,7 @@ function Students() {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
                         <SchoolIcon sx={{ fontSize: 40, color: 'secondary.main', mb: 1 }} />
                         <Typography variant="h4" fontWeight={700} color="secondary.main">
@@ -133,7 +133,7 @@ function Students() {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
                         <GradeIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
                         <Typography variant="h4" fontWeight={700} color="success.main">
@@ -144,7 +144,7 @@ function Students() {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
                         <GroupIcon sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
                         <Typography variant="h4" fontWeight={700} color="warning.main">

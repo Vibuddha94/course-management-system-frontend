@@ -88,7 +88,7 @@ function DashboardHome({ user }) {
 
                 {/* Stats Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
                             <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -99,7 +99,7 @@ function DashboardHome({ user }) {
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'secondary.main', color: 'white' }}>
                             <GroupIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -110,7 +110,7 @@ function DashboardHome({ user }) {
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
                             <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -121,7 +121,7 @@ function DashboardHome({ user }) {
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'warning.main', color: 'white' }}>
                             <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -132,7 +132,7 @@ function DashboardHome({ user }) {
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2.4}>
+                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'error.main', color: 'white' }}>
                             <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -151,7 +151,7 @@ function DashboardHome({ user }) {
                         Quick Actions
                     </Typography>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -162,7 +162,7 @@ function DashboardHome({ user }) {
                                 Add New Course
                             </Button>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -173,7 +173,7 @@ function DashboardHome({ user }) {
                                 Manage Students
                             </Button>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -184,7 +184,7 @@ function DashboardHome({ user }) {
                                 Manage Instructors
                             </Button>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -259,7 +259,7 @@ function DashboardHome({ user }) {
 
                 {/* Stats Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
                             <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -270,7 +270,7 @@ function DashboardHome({ user }) {
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
                             <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -281,7 +281,7 @@ function DashboardHome({ user }) {
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'warning.main', color: 'white' }}>
                             <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -292,7 +292,7 @@ function DashboardHome({ user }) {
                             </Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'error.main', color: 'white' }}>
                             <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
                             <Typography variant="h4" fontWeight={700}>
@@ -307,7 +307,7 @@ function DashboardHome({ user }) {
 
                 <Grid container spacing={3}>
                     {/* Recent Grades */}
-                    <Grid item xs={12} md={6}>
+                    <Grid span={{ xs: 12, md: 6 }}>
                         <Paper elevation={3} sx={{ p: 3 }}>
                             <Typography variant="h6" fontWeight={600} gutterBottom>
                                 Recent Grades
@@ -335,7 +335,7 @@ function DashboardHome({ user }) {
                     </Grid>
 
                     {/* Quick Actions */}
-                    <Grid item xs={12} md={6}>
+                    <Grid span={{ xs: 12, md: 6 }}>
                         <Paper elevation={3} sx={{ p: 3 }}>
                             <Typography variant="h6" fontWeight={600} gutterBottom>
                                 Quick Actions
@@ -382,7 +382,7 @@ function DashboardHome({ user }) {
 
             {/* Stats Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
                         <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
                         <Typography variant="h4" fontWeight={700}>
@@ -393,7 +393,7 @@ function DashboardHome({ user }) {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'secondary.main', color: 'white' }}>
                         <GroupIcon sx={{ fontSize: 40, mb: 1 }} />
                         <Typography variant="h4" fontWeight={700}>
@@ -404,7 +404,7 @@ function DashboardHome({ user }) {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
                         <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
                         <Typography variant="h4" fontWeight={700}>
@@ -415,7 +415,7 @@ function DashboardHome({ user }) {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
                     <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'warning.main', color: 'white' }}>
                         <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
                         <Typography variant="h4" fontWeight={700}>
@@ -430,7 +430,7 @@ function DashboardHome({ user }) {
 
             <Grid container spacing={3}>
                 {/* Upcoming Classes */}
-                <Grid item xs={12} md={6}>
+                <Grid span={{ xs: 12, md: 6 }}>
                     <Paper elevation={3} sx={{ p: 3 }}>
                         <Typography variant="h6" fontWeight={600} gutterBottom>
                             Upcoming Classes
