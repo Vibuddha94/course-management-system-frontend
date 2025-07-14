@@ -35,8 +35,8 @@ import {
     VisibilityOff as VisibilityOffIcon,
     Lock as LockIcon
 } from '@mui/icons-material';
+import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
-import Swal from 'sweetalert2';
 
 function Profile() {
     const [isEditing, setIsEditing] = useState(false);
@@ -175,6 +175,7 @@ function Profile() {
             await fetchUserProfile();
 
             setIsEditing(false);
+            toast.success('Profile updated successfully!');
         } catch (error) {
             console.error('Error updating user profile:', error);
             setError('Failed to update profile. Please try again.');
@@ -328,16 +329,8 @@ function Profile() {
             // Close dialog and show success
             handleClosePasswordDialog();
 
-            // Small delay to ensure dialog is fully closed before showing success alert
-            setTimeout(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Password changed successfully!',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            }, 100);
+            // Use Sonner toast for success notification
+            toast.success('Password changed successfully!');
 
         } catch (error) {
             console.error('Error changing password:', error);

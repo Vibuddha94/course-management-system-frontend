@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Paper, Link, Stack, Avatar, Fade, Grow } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
 
 function Register() {
@@ -30,7 +31,7 @@ function Register() {
                 },
             };
             await apiService.post('/user', payload);
-            // Optionally show a success message here
+            toast.success('Registration successful! You can now login.');
             navigate('/login');
         } catch (error) {
             // Error handled globally
