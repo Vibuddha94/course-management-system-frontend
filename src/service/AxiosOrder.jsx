@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import { toast } from 'sonner';
 
 // Base URL for API
 const BASE_URL = 'http://127.0.0.1:8080/api/v1';
@@ -63,23 +63,11 @@ axiosInstance.interceptors.response.use(
                     // Use message from server or fallback
                     break;
             }
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: message,
-            });
+            toast.error(message);
         } else if (error.request) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Network Error',
-                text: 'No response from server. Please check your connection.',
-            });
+            toast.error('No response from server. Please check your connection.');
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.message || 'An unknown error occurred.',
-            });
+            toast.error(error.message || 'An unknown error occurred.');
         }
         return Promise.reject(error);
     }

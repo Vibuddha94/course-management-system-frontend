@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Paper, Link, Stack, Avatar, Fade, Grow } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
 
 function Login() {
@@ -20,6 +21,7 @@ function Login() {
             // Store complete user info including role and any other data
             const userData = { role, ...otherUserData };
             localStorage.setItem('user', JSON.stringify(userData));
+            toast.success('Login successful!');
             window.location.reload(); // Reload to apply new token and user data
         } catch (error) {
             // Error is handled globally by AxiosOrder
