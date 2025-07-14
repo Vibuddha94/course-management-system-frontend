@@ -43,6 +43,7 @@ function Profile() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
     const [profile, setProfile] = useState(null);
     const [originalProfile, setOriginalProfile] = useState(null);
     const [currentPassword, setCurrentPassword] = useState(''); // Store current password
@@ -189,6 +190,7 @@ function Profile() {
     const handleEdit = () => {
         setIsEditing(true);
         setError(null);
+        setSuccess(null);
     };
 
     const handleSave = () => {
@@ -199,6 +201,7 @@ function Profile() {
         setProfile(originalProfile);
         setIsEditing(false);
         setError(null);
+        setSuccess(null);
     };
 
     const handleInputChange = (field, value) => {
@@ -324,8 +327,17 @@ function Profile() {
 
             // Close dialog and show success
             handleClosePasswordDialog();
-            setError('Password changed successfully!');
-            setTimeout(() => setError(null), 3000);
+
+            // Small delay to ensure dialog is fully closed before showing success alert
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Password changed successfully!',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }, 100);
 
         } catch (error) {
             console.error('Error changing password:', error);
@@ -417,6 +429,12 @@ function Profile() {
             {error && (
                 <Alert severity="error" sx={{ mb: 3 }}>
                     {error}
+                </Alert>
+            )}
+
+            {success && (
+                <Alert severity="success" sx={{ mb: 3 }}>
+                    {success}
                 </Alert>
             )}
 
