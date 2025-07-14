@@ -10,25 +10,18 @@ function hasToken() {
 }
 
 function App() {
-  const location = useLocation();
+
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/dashboard/*" element={<Dashboard />} />
-      {/* Default route logic */}
-      <Route
-        path="/"
-        element={
-          hasToken() ? (
-            <Navigate to="/dashboard" replace state={{ from: location }} />
-          ) : (
-            <Navigate to="/login" replace state={{ from: location }} />
-          )
-        }
-      />
-    </Routes>
+    <>
+      {hasToken() ? <Dashboard /> :
+        <Routes>
+          <Route path="*" element={<Navigate to={'/login'} />}></Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>}
+    </>
+
   );
 }
 

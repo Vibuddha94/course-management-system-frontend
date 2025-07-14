@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import AppBar from '@mui/material/AppBar';
@@ -14,11 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
-import { useNavigate, Routes, Route, useLocation } from 'react-router-dom';
+import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import apiService from '../../service/AxiosOrder';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SchoolIcon from '@mui/icons-material/School';
@@ -37,46 +32,10 @@ import Instructors from '../Instructors/Instructors';
 import Students from '../Students/Students';
 import Profile from '../Profile/Profile';
 import DashboardHome from './DashboardHome';
+import { getNavigation } from '../../common/navigation/routes';
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 64;
-
-function getNavigation(role) {
-    const base = [
-        {
-            path: '/dashboard',
-            title: 'Dashboard',
-            icon: <DashboardIcon />,
-        },
-        {
-            path: '/dashboard/courses',
-            title: 'Courses',
-            icon: <SchoolIcon />,
-        },
-        {
-            path: '/dashboard/profile',
-            title: 'Profile',
-            icon: <PersonIcon />,
-        },
-    ];
-
-    if (role === 'ADMIN') {
-        base.splice(2, 0,
-            {
-                path: '/dashboard/instructors',
-                title: 'Instructors',
-                icon: <GroupIcon />,
-            },
-            {
-                path: '/dashboard/students',
-                title: 'Students',
-                icon: <GroupIcon />,
-            }
-        );
-    }
-    return base;
-}
-
 
 
 export default function Dashboard() {
@@ -108,7 +67,7 @@ export default function Dashboard() {
     const handleLogout = () => {
         apiService.removeBearerToken();
         localStorage.removeItem('user');
-        navigate('/login');
+        window.location.reload(); // Reload to clear user data
     };
 
     const handleNavigation = (path) => {
@@ -273,12 +232,10 @@ export default function Dashboard() {
                 }}
             >
                 <Routes>
-                    <Route path="/" element={<DashboardHome user={user} />} />
-                    <Route path="dashboard" element={<DashboardHome user={user} />} />
-                    <Route path="courses" element={<Courses />} />
-                    <Route path="instructors" element={<Instructors />} />
-                    <Route path="students" element={<Students />} />
-                    <Route path="profile" element={<Profile />} />
+                    <Route path="*" element={<Navigate to="/home" />} />
+                    {navigation.map((item) => (
+                        <Route key={item.path} path={item.path} element={item.element} />
+                    ))}
                 </Routes>
             </Box>
         </Box>

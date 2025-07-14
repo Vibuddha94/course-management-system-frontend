@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper, Link, Stack, Avatar, Fade } from '@mui/material';
+import { Box, Button, TextField, Typography, Paper, Link, Stack, Avatar, Fade, Grow } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import apiService from '../../service/AxiosOrder';
@@ -50,107 +50,109 @@ function Register() {
                 transition: 'background 0.5s',
             }}
         >
-            <Fade in timeout={800}>
-                <Paper elevation={8} sx={{ p: 3, width: '100%', maxWidth: 380, borderRadius: 4, boxShadow: 8, backdropFilter: 'blur(2px)' }}>
-                    <Stack spacing={2} alignItems="center" width="100%">
-                        <Avatar sx={{ bgcolor: 'secondary.main', width: 64, height: 64 }}>
-                            <PersonAddAlt1Icon fontSize="large" />
-                        </Avatar>
-                        <Typography variant="h4" align="center" fontWeight={700} color="secondary.main" letterSpacing={1}>
-                            Student Registration
-                        </Typography>
-                        <Box component="form" noValidate autoComplete="off" width="100%" onSubmit={handleSubmit}>
-                            <TextField
-                                label="Name"
-                                fullWidth
-                                margin="dense"
-                                required
-                                variant="outlined"
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                                disabled={loading}
-                                sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
-                            />
-                            <TextField
-                                label="Email"
-                                type="email"
-                                fullWidth
-                                margin="dense"
-                                required
-                                variant="outlined"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                disabled={loading}
-                                sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
-                            />
-                            <TextField
-                                label="Password"
-                                type="password"
-                                fullWidth
-                                margin="dense"
-                                required
-                                variant="outlined"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                disabled={loading}
-                                sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
-                            />
-                            <TextField
-                                label="Contact Number"
-                                type="tel"
-                                fullWidth
-                                margin="dense"
-                                required
-                                variant="outlined"
-                                value={contactNumber}
-                                onChange={e => setContactNumber(e.target.value)}
-                                disabled={loading}
-                                sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
-                            />
-                            <TextField
-                                label="Address"
-                                fullWidth
-                                margin="dense"
-                                required
-                                variant="outlined"
-                                value={address}
-                                onChange={e => setAddress(e.target.value)}
-                                disabled={loading}
-                                sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
-                            />
-                            <TextField
-                                label="Age"
-                                type="number"
-                                fullWidth
-                                margin="dense"
-                                required
-                                variant="outlined"
-                                value={age}
-                                onChange={e => setAge(e.target.value)}
-                                disabled={loading}
-                                sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
-                            />
-                            <Button
-                                variant="contained"
-                                color="secondary"
-                                fullWidth
-                                size="large"
-                                sx={{ mt: 2, borderRadius: 2, fontWeight: 600, letterSpacing: 1, boxShadow: 3, py: 1, fontSize: 18, transition: 'background 0.3s' }}
-                                type="submit"
-                                disabled={loading}
-                            >
-                                {loading ? 'Registering...' : 'Register'}
-                            </Button>
-                        </Box>
-                        <Typography align="center" variant="body2" color="text.secondary">
-                            Already have an account?{' '}
-                            <Link component={RouterLink} to="/login" underline="hover" color="primary" fontWeight={600}>
-                                Login
-                            </Link>
-                        </Typography>
-                    </Stack>
-                </Paper>
-            </Fade>
+            <Grow in timeout={600}>
+                <Fade in timeout={800}>
+                    <Paper elevation={8} sx={{ p: 3, width: '100%', maxWidth: 380, borderRadius: 4, boxShadow: 8, backdropFilter: 'blur(2px)' }}>
+                        <Stack spacing={2} alignItems="center" width="100%">
+                            <Avatar sx={{ bgcolor: 'secondary.main', width: 64, height: 64 }}>
+                                <PersonAddAlt1Icon fontSize="large" />
+                            </Avatar>
+                            <Typography variant="h4" align="center" fontWeight={700} color="secondary.main" letterSpacing={1}>
+                                Student Registration
+                            </Typography>
+                            <Box component="form" noValidate autoComplete="off" width="100%" onSubmit={handleSubmit}>
+                                <TextField
+                                    label="Name"
+                                    fullWidth
+                                    margin="dense"
+                                    required
+                                    variant="outlined"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                    disabled={loading}
+                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                />
+                                <TextField
+                                    label="Email"
+                                    type="email"
+                                    fullWidth
+                                    margin="dense"
+                                    required
+                                    variant="outlined"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    disabled={loading}
+                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                />
+                                <TextField
+                                    label="Password"
+                                    type="password"
+                                    fullWidth
+                                    margin="dense"
+                                    required
+                                    variant="outlined"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    disabled={loading}
+                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                />
+                                <TextField
+                                    label="Contact Number"
+                                    type="tel"
+                                    fullWidth
+                                    margin="dense"
+                                    required
+                                    variant="outlined"
+                                    value={contactNumber}
+                                    onChange={e => setContactNumber(e.target.value)}
+                                    disabled={loading}
+                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                />
+                                <TextField
+                                    label="Address"
+                                    fullWidth
+                                    margin="dense"
+                                    required
+                                    variant="outlined"
+                                    value={address}
+                                    onChange={e => setAddress(e.target.value)}
+                                    disabled={loading}
+                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                />
+                                <TextField
+                                    label="Age"
+                                    type="number"
+                                    fullWidth
+                                    margin="dense"
+                                    required
+                                    variant="outlined"
+                                    value={age}
+                                    onChange={e => setAge(e.target.value)}
+                                    disabled={loading}
+                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                />
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    fullWidth
+                                    size="large"
+                                    sx={{ mt: 2, borderRadius: 2, fontWeight: 600, letterSpacing: 1, boxShadow: 3, py: 1, fontSize: 18, transition: 'background 0.3s' }}
+                                    type="submit"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Registering...' : 'Register'}
+                                </Button>
+                            </Box>
+                            <Typography align="center" variant="body2" color="text.secondary">
+                                Already have an account?{' '}
+                                <Link component={RouterLink} to="/login" underline="hover" color="primary" fontWeight={600}>
+                                    Login
+                                </Link>
+                            </Typography>
+                        </Stack>
+                    </Paper>
+                </Fade>
+            </Grow>
         </Box>
     );
 }
