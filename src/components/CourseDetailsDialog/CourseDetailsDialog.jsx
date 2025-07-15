@@ -14,15 +14,13 @@ import {
     IconButton,
     Card,
     CardContent,
-    CardActions,
-    Fab
+    CardActions
 } from '@mui/material';
 import {
     Close as CloseIcon,
     School as SchoolIcon,
     Description as DescriptionIcon,
     CloudUpload as CloudUploadIcon,
-    Add as AddIcon,
     Download as DownloadIcon,
     InsertDriveFile as FileIcon
 } from '@mui/icons-material';
@@ -84,11 +82,6 @@ const CourseDetailsDialog = ({
     const handleDelete = () => {
         onDelete?.(course.id);
         onClose();
-    };
-
-    const handleAddMaterial = () => {
-        // TODO: Implement add material functionality
-        console.log('Add material clicked');
     };
 
     const handleDownloadMaterial = async (material) => {
@@ -240,14 +233,6 @@ const CourseDetailsDialog = ({
                                 <Typography variant="h6" fontWeight={600}>
                                     Course Materials
                                 </Typography>
-                                <Fab
-                                    size="small"
-                                    color="primary"
-                                    onClick={handleAddMaterial}
-                                    sx={{ boxShadow: 2 }}
-                                >
-                                    <AddIcon />
-                                </Fab>
                             </Box>
 
                             {materialsLoading ? (

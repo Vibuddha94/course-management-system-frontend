@@ -2,24 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     Box,
     Typography,
-    Paper,
-    Grid,
-    Card,
-    CardContent,
-    CardActions,
-    Button,
-    Chip,
-    Avatar,
-    IconButton,
-    Tooltip,
-    Fab
+    Grid
 } from '@mui/material';
 import {
     School as SchoolIcon,
-    Add as AddIcon,
-    Edit as EditIcon,
-    Delete as DeleteIcon,
-    Visibility as ViewIcon,
     Assignment as AssignmentIcon,
     Group as GroupIcon
 } from '@mui/icons-material';
