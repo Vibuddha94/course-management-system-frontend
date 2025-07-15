@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Box, Typography, Fab, Tooltip } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 
-const PageHeader = ({
+const PageHeader = forwardRef(({
     title,
     subtitle,
     onAdd,
@@ -10,7 +10,7 @@ const PageHeader = ({
     icon = AddIcon,
     showAddButton = true,
     sx = {}
-}) => {
+}, ref) => {
     const IconComponent = icon;
 
     return (
@@ -32,6 +32,7 @@ const PageHeader = ({
             {showAddButton && (
                 <Tooltip title={addTooltip}>
                     <Fab
+                        ref={ref}
                         color="primary"
                         aria-label={addTooltip}
                         onClick={onAdd}
@@ -50,6 +51,8 @@ const PageHeader = ({
             )}
         </Box>
     );
-};
+});
+
+PageHeader.displayName = 'PageHeader';
 
 export default PageHeader;
