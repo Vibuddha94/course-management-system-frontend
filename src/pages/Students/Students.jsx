@@ -15,7 +15,7 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
+    TableRow as MuiTableRow,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -34,6 +34,9 @@ import {
 } from '@mui/icons-material';
 import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
+import TableRow from '../../components/TableRow/TableRow';
+import UserFormDialog from '../../components/UserFormDialog/UserFormDialog';
+import { StatsCard, PageHeader } from '../../components';
 
 function Students() {
     const [totalCourses, setTotalCourses] = useState(0);
@@ -248,72 +251,46 @@ function Students() {
     return (
         <Box sx={{ p: 3 }}>
             {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Box>
-                    <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
-                        Students
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Manage all students and their academic information
-                    </Typography>
-                </Box>
-                <Tooltip title="Add New Student">
-                    <Fab
-                        color="primary"
-                        aria-label="add student"
-                        onClick={handleAddStudent}
-                        sx={{ boxShadow: 3 }}
-                    >
-                        <AddIcon />
-                    </Fab>
-                </Tooltip>
-            </Box>
+            <PageHeader
+                title="Students"
+                subtitle="Manage all students and their academic information"
+                onAdd={handleAddStudent}
+                addTooltip="Add New Student"
+            />
 
             {/* Stats Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <GroupIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="primary">
-                            {students.length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Total Students
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={GroupIcon}
+                        value={students.length}
+                        label="Total Students"
+                        color="primary.main"
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <SchoolIcon sx={{ fontSize: 40, color: 'secondary.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="secondary.main">
-                            {totalCourses}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Available Courses
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={SchoolIcon}
+                        value={totalCourses}
+                        label="Available Courses"
+                        color="secondary.main"
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <GradeIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="success.main">
-                            {students.filter(student => student.student?.age >= 18).length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Adult Students
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={GradeIcon}
+                        value={students.filter(student => student.student?.age >= 18).length}
+                        label="Adult Students"
+                        color="success.main"
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <GroupIcon sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="warning.main">
-                            {students.filter(student => student.student?.age < 18).length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Minor Students
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={GroupIcon}
+                        value={students.filter(student => student.student?.age < 18).length}
+                        label="Minor Students"
+                        color="warning.main"
+                    />
                 </Grid>
             </Grid>
 
@@ -322,98 +299,26 @@ function Students() {
                 <TableContainer sx={{ overflow: 'hidden' }}>
                     <Table>
                         <TableHead>
-                            <TableRow sx={{ bgcolor: 'primary.main' }}>
+                            <MuiTableRow sx={{ bgcolor: 'primary.main' }}>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Student</TableCell>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Contact</TableCell>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Address</TableCell>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Age</TableCell>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
-                            </TableRow>
+                            </MuiTableRow>
                         </TableHead>
                         <TableBody>
                             {students.map((student) => (
                                 <TableRow
                                     key={student.id}
-                                    hover
-                                    sx={{
-                                        backgroundColor: deletingStudentId === student.id
-                                            ? 'rgba(220, 38, 38, 0.1)'
-                                            : 'transparent',
-                                        transition: 'background-color 0.3s ease',
-                                        border: deletingStudentId === student.id
-                                            ? '2px solid rgba(220, 38, 38, 0.3)'
-                                            : 'none',
-                                        overflow: 'hidden'
-                                    }}
-                                >
-                                    {deletingStudentId === student.id ? (
-                                        // Confirmation mode
-                                        <TableCell colSpan={5} sx={{ overflow: 'hidden' }}>
-                                            <Box sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                height: '57px',
-                                                px: 2,
-                                                overflow: 'hidden',
-                                                animation: 'slideInFromRight 0.4s ease-out',
-                                                '@keyframes slideInFromRight': {
-                                                    '0%': {
-                                                        transform: 'translateX(100%)',
-                                                        opacity: 0
-                                                    },
-                                                    '100%': {
-                                                        transform: 'translateX(0)',
-                                                        opacity: 1
-                                                    }
-                                                }
-                                            }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40 }}>
-                                                        <DeleteIcon sx={{ fontSize: 20 }} />
-                                                    </Avatar>
-                                                    <Box>
-                                                        <Typography variant="subtitle1" color="error.main" fontWeight={600}>
-                                                            Delete {student.name}?
-                                                        </Typography>
-                                                        <Typography variant="caption" color="text.secondary">
-                                                            This action cannot be undone
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="inherit"
-                                                        size="small"
-                                                        onClick={cancelDelete}
-                                                        sx={{
-                                                            borderRadius: 1,
-                                                            px: 2,
-                                                            fontWeight: 600
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </Button>
-                                                    <Button
-                                                        variant="contained"
-                                                        color="error"
-                                                        size="small"
-                                                        onClick={() => confirmDelete(student.id)}
-                                                        sx={{
-                                                            borderRadius: 1,
-                                                            px: 2,
-                                                            fontWeight: 600,
-                                                            boxShadow: 1
-                                                        }}
-                                                    >
-                                                        Delete
-                                                    </Button>
-                                                </Box>
-                                            </Box>
-                                        </TableCell>
-                                    ) : (
-                                        // Normal row mode
+                                    item={student}
+                                    isDeleting={deletingStudentId === student.id}
+                                    onEdit={handleEditStudent}
+                                    onDelete={handleDeleteStudent}
+                                    onConfirmDelete={confirmDelete}
+                                    onCancelDelete={cancelDelete}
+                                    columnsCount={5}
+                                    renderCells={(student) => (
                                         <>
                                             <TableCell>
                                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -459,31 +364,9 @@ function Students() {
                                                     variant="outlined"
                                                 />
                                             </TableCell>
-                                            <TableCell>
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
-                                                    <Tooltip title="Edit Student">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="secondary"
-                                                            onClick={() => handleEditStudent(student.id)}
-                                                        >
-                                                            <EditIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete Student">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="error"
-                                                            onClick={() => handleDeleteStudent(student.id)}
-                                                        >
-                                                            <DeleteIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Box>
-                                            </TableCell>
                                         </>
                                     )}
-                                </TableRow>
+                                />
                             ))}
                         </TableBody>
                     </Table>
@@ -491,141 +374,32 @@ function Students() {
             </Paper>
 
             {/* Add Student Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                <DialogTitle>Add New Student</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
-                            label="Name"
-                            fullWidth
-                            value={formData.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Email"
-                            type="email"
-                            fullWidth
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            value={formData.password}
-                            onChange={(e) => handleInputChange('password', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Contact Number"
-                            type="number"
-                            fullWidth
-                            value={formData.contactNumber}
-                            onChange={(e) => handleInputChange('contactNumber', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Address"
-                            fullWidth
-                            value={formData.address}
-                            onChange={(e) => handleInputChange('address', e.target.value)}
-                            disabled={loading}
-                            placeholder="e.g., Colombo, Sri Lanka"
-                        />
-                        <TextField
-                            label="Age"
-                            type="number"
-                            fullWidth
-                            value={formData.age}
-                            onChange={(e) => handleInputChange('age', e.target.value)}
-                            disabled={loading}
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog} disabled={loading}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        disabled={loading}
-                    >
-                        {loading ? 'Adding...' : 'Add Student'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <UserFormDialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                onSubmit={handleSubmit}
+                title="Add New Student"
+                formData={formData}
+                onInputChange={handleInputChange}
+                loading={loading}
+                submitLabel="Add Student"
+                userType="Student"
+                isEdit={false}
+            />
 
             {/* Edit Student Dialog */}
-            <Dialog open={openEditDialog} onClose={handleCloseEditDialog} maxWidth="sm" fullWidth>
-                <DialogTitle>Edit Student</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
-                            label="Name"
-                            fullWidth
-                            value={formData.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Email"
-                            type="email"
-                            fullWidth
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            value={formData.password}
-                            onChange={(e) => handleInputChange('password', e.target.value)}
-                            disabled={loading}
-                            placeholder="Enter new password"
-                        />
-                        <TextField
-                            label="Contact Number"
-                            type="number"
-                            fullWidth
-                            value={formData.contactNumber}
-                            onChange={(e) => handleInputChange('contactNumber', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Address"
-                            fullWidth
-                            value={formData.address}
-                            onChange={(e) => handleInputChange('address', e.target.value)}
-                            disabled={loading}
-                            placeholder="e.g., Colombo, Sri Lanka"
-                        />
-                        <TextField
-                            label="Age"
-                            type="number"
-                            fullWidth
-                            value={formData.age}
-                            onChange={(e) => handleInputChange('age', e.target.value)}
-                            disabled={loading}
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseEditDialog} disabled={loading}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleUpdateSubmit}
-                        variant="contained"
-                        disabled={loading}
-                    >
-                        {loading ? 'Updating...' : 'Update Student'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <UserFormDialog
+                open={openEditDialog}
+                onClose={handleCloseEditDialog}
+                onSubmit={handleUpdateSubmit}
+                title="Edit Student"
+                formData={formData}
+                onInputChange={handleInputChange}
+                loading={loading}
+                submitLabel="Update Student"
+                userType="Student"
+                isEdit={true}
+            />
         </Box>
     );
 }
