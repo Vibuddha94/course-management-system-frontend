@@ -260,6 +260,17 @@ function Courses() {
                 return;
             }
 
+            // Step 1: Delete all course materials first
+            try {
+                await apiService.delete(`/course-modules/delete/all/${courseToDelete.id}`);
+                console.log('Course materials deleted successfully');
+            } catch (materialError) {
+                console.error('Error deleting course materials:', materialError);
+                // Continue with course deletion even if materials deletion fails
+                // You might want to show a warning to the user here
+            }
+
+            // Step 2: Delete the course
             const response = await apiService.delete(`/course/${courseToDelete.id}`);
 
             // Close the dialog first
