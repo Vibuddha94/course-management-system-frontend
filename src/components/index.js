@@ -9,3 +9,6 @@ export { default as ActionButtons } from "../common/components/ActionButtons/Act
 // Existing specific components
 export { default as TableRow } from "./TableRow/TableRow";
 export { default as UserFormDialog } from "./UserFormDialog/UserFormDialog";
+export { default as CourseFormDialog } from "./CourseFormDialog/CourseFormDialog";
+export { default as ConfirmationDialog } from "./ConfirmationDialog/ConfirmationDialog";
+export { default as CourseDetailsDialog } from "./CourseDetailsDialog/CourseDetailsDialog";
