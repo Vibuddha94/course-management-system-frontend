@@ -5,7 +5,6 @@ import {
     Paper,
     Grid,
     Avatar,
-    TextField,
     Button,
     Divider,
     Card,
@@ -13,13 +12,12 @@ import {
     IconButton,
     Tooltip,
     Chip,
-    CircularProgress,
     Alert,
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
-    InputAdornment
+    CircularProgress
 } from '@mui/material';
 import {
     Person as PersonIcon,
@@ -31,12 +29,11 @@ import {
     LocationOn as LocationIcon,
     School as SchoolIcon,
     Work as WorkIcon,
-    Visibility as VisibilityIcon,
-    VisibilityOff as VisibilityOffIcon,
     Lock as LockIcon
 } from '@mui/icons-material';
 import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
+import { FormField, LoadingSpinner } from '../../components';
 
 function Profile() {
     const [isEditing, setIsEditing] = useState(false);
@@ -342,9 +339,12 @@ function Profile() {
 
     if (loading) {
         return (
-            <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-                <CircularProgress size={60} />
-            </Box>
+            <LoadingSpinner
+                size={60}
+                message="Loading profile..."
+                showMessage={true}
+                minHeight="400px"
+            />
         );
     }
 
@@ -536,40 +536,34 @@ function Profile() {
 
                         <Grid container spacing={3}>
                             <Grid span={{ xs: 12, sm: 6 }}>
-                                <TextField
-                                    fullWidth
+                                <FormField
+                                    name="name"
                                     label="Full Name"
                                     value={profile.name}
                                     onChange={(e) => handleInputChange('name', e.target.value)}
                                     disabled={!isEditing}
-                                    slots={{
-                                        startAdornment: () => <PersonIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                                    }}
+                                    startIcon={<PersonIcon />}
                                 />
                             </Grid>
                             <Grid span={{ xs: 12, sm: 6 }}>
-                                <TextField
-                                    fullWidth
+                                <FormField
+                                    name="email"
                                     label="Email"
                                     type="email"
                                     value={profile.email}
                                     onChange={(e) => handleInputChange('email', e.target.value)}
                                     disabled={!isEditing}
-                                    slots={{
-                                        startAdornment: () => <EmailIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                                    }}
+                                    startIcon={<EmailIcon />}
                                 />
                             </Grid>
                             <Grid span={{ xs: 12, sm: 6 }}>
-                                <TextField
-                                    fullWidth
+                                <FormField
+                                    name="contactNumber"
                                     label="Contact Number"
                                     value={profile.contactNumber}
                                     onChange={(e) => handleInputChange('contactNumber', e.target.value)}
                                     disabled={!isEditing}
-                                    slots={{
-                                        startAdornment: () => <PhoneIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                                    }}
+                                    startIcon={<PhoneIcon />}
                                 />
                             </Grid>
 
@@ -577,28 +571,24 @@ function Profile() {
                             {profile.role === 'Student' && (
                                 <>
                                     <Grid span={{ xs: 12, sm: 6 }}>
-                                        <TextField
-                                            fullWidth
+                                        <FormField
+                                            name="age"
                                             label="Age"
                                             type="number"
                                             value={profile.age}
                                             onChange={(e) => handleInputChange('age', e.target.value)}
                                             disabled={!isEditing}
-                                            slots={{
-                                                startAdornment: () => <PersonIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                                            }}
+                                            startIcon={<PersonIcon />}
                                         />
                                     </Grid>
                                     <Grid span={{ xs: 12, sm: 6 }}>
-                                        <TextField
-                                            fullWidth
+                                        <FormField
+                                            name="address"
                                             label="Address"
                                             value={profile.address}
                                             onChange={(e) => handleInputChange('address', e.target.value)}
                                             disabled={!isEditing}
-                                            slots={{
-                                                startAdornment: () => <LocationIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                                            }}
+                                            startIcon={<LocationIcon />}
                                         />
                                     </Grid>
                                 </>
@@ -606,15 +596,13 @@ function Profile() {
 
                             {profile.role === 'Instructor' && (
                                 <Grid span={{ xs: 12, sm: 6 }}>
-                                    <TextField
-                                        fullWidth
+                                    <FormField
+                                        name="qualification"
                                         label="Qualification"
                                         value={profile.qualification}
                                         onChange={(e) => handleInputChange('qualification', e.target.value)}
                                         disabled={!isEditing}
-                                        slots={{
-                                            startAdornment: () => <SchoolIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                                        }}
+                                        startIcon={<SchoolIcon />}
                                     />
                                 </Grid>
                             )}
@@ -660,88 +648,46 @@ function Profile() {
                     )}
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
+                        <FormField
                             fullWidth
                             label="Current Password"
-                            type={showPasswords.current ? 'text' : 'password'}
+                            type="password"
                             value={passwordData.currentPassword}
                             onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
                             required
                             error={passwordData.currentPassword !== '' && passwordData.currentPassword !== currentPassword}
                             helperText={passwordData.currentPassword !== '' && passwordData.currentPassword !== currentPassword ? 'Current password is incorrect' : ''}
                             color={passwordData.currentPassword && passwordData.currentPassword === currentPassword ? 'success' : passwordData.currentPassword && passwordData.currentPassword !== currentPassword ? 'error' : 'primary'}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LockIcon color="action" />
-                                    </InputAdornment>
-                                ),
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => handleTogglePasswordVisibility('current')}
-                                            edge="end"
-                                        >
-                                            {showPasswords.current ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
+                            showPassword={showPasswords.current}
+                            onTogglePassword={() => handleTogglePasswordVisibility('current')}
+                            icon={<LockIcon />}
                         />
 
-                        <TextField
+                        <FormField
                             fullWidth
                             label="New Password"
-                            type={showPasswords.new ? 'text' : 'password'}
+                            type="password"
                             value={passwordData.newPassword}
                             onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
                             required
                             error={passwordData.newPassword !== '' && passwordData.newPassword === currentPassword}
                             helperText={passwordData.newPassword !== '' && passwordData.newPassword === currentPassword ? 'New password cannot be the same as current password' : ''}
                             color={passwordData.newPassword && passwordData.newPassword !== currentPassword && passwordData.newPassword.length >= 6 ? 'success' : passwordData.newPassword && (passwordData.newPassword === currentPassword || passwordData.newPassword.length < 6) ? 'error' : 'primary'}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LockIcon color="action" />
-                                    </InputAdornment>
-                                ),
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => handleTogglePasswordVisibility('new')}
-                                            edge="end"
-                                        >
-                                            {showPasswords.new ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
+                            showPassword={showPasswords.new}
+                            onTogglePassword={() => handleTogglePasswordVisibility('new')}
+                            icon={<LockIcon />}
                         />
 
-                        <TextField
+                        <FormField
                             fullWidth
                             label="Confirm New Password"
-                            type={showPasswords.confirm ? 'text' : 'password'}
+                            type="password"
                             value={passwordData.confirmPassword}
                             onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
                             color={passwordData.confirmPassword && passwordData.newPassword === passwordData.confirmPassword ? 'success' : passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword ? 'error' : 'primary'}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LockIcon color="action" />
-                                    </InputAdornment>
-                                ),
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => handleTogglePasswordVisibility('confirm')}
-                                            edge="end"
-                                        >
-                                            {showPasswords.confirm ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
+                            showPassword={showPasswords.confirm}
+                            onTogglePassword={() => handleTogglePasswordVisibility('confirm')}
+                            icon={<LockIcon />}
                         />
 
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
