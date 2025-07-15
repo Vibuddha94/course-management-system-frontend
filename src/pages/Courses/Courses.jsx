@@ -24,6 +24,7 @@ import {
     Group as GroupIcon,
     Schedule as ScheduleIcon
 } from '@mui/icons-material';
+import { StatsCard, PageHeader, CourseCard } from '../../components';
 
 const mockCourses = [
     {
@@ -78,72 +79,46 @@ function Courses() {
     return (
         <Box sx={{ p: 3 }}>
             {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Box>
-                    <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
-                        Courses
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Manage and view all available courses
-                    </Typography>
-                </Box>
-                <Tooltip title="Add New Course">
-                    <Fab
-                        color="primary"
-                        aria-label="add course"
-                        onClick={handleAddCourse}
-                        sx={{ boxShadow: 3 }}
-                    >
-                        <AddIcon />
-                    </Fab>
-                </Tooltip>
-            </Box>
+            <PageHeader
+                title="Courses"
+                subtitle="Manage and view all available courses"
+                onAdd={handleAddCourse}
+                addTooltip="Add New Course"
+            />
 
             {/* Stats Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <SchoolIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="primary">
-                            {mockCourses.length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Total Courses
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={SchoolIcon}
+                        value={mockCourses.length}
+                        label="Total Courses"
+                        color="primary.main"
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <GroupIcon sx={{ fontSize: 40, color: 'secondary.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="secondary.main">
-                            {mockCourses.reduce((sum, course) => sum + course.students, 0)}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Total Students
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={GroupIcon}
+                        value={mockCourses.reduce((sum, course) => sum + course.students, 0)}
+                        label="Total Students"
+                        color="secondary.main"
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <AssignmentIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="success.main">
-                            {mockCourses.filter(course => course.status === 'active').length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Active Courses
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={AssignmentIcon}
+                        value={mockCourses.filter(course => course.status === 'active').length}
+                        label="Active Courses"
+                        color="success.main"
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <ScheduleIcon sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="warning.main">
-                            {mockCourses.filter(course => course.status === 'draft').length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Draft Courses
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={ScheduleIcon}
+                        value={mockCourses.filter(course => course.status === 'draft').length}
+                        label="Draft Courses"
+                        color="warning.main"
+                    />
                 </Grid>
             </Grid>
 
@@ -151,82 +126,13 @@ function Courses() {
             <Grid container spacing={3}>
                 {mockCourses.map((course) => (
                     <Grid span={{ xs: 12, sm: 6, md: 4 }} key={course.id}>
-                        <Card elevation={3} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            <CardContent sx={{ flexGrow: 1 }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                                        {course.title}
-                                    </Typography>
-                                    <Chip
-                                        label={course.status}
-                                        color={course.status === 'active' ? 'success' : 'default'}
-                                        size="small"
-                                    />
-                                </Box>
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                                    {course.description}
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                    <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: '0.75rem' }}>
-                                        {course.instructor.split(' ').map(n => n[0]).join('')}
-                                    </Avatar>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {course.instructor}
-                                    </Typography>
-                                </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {course.students} students
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {course.duration}
-                                    </Typography>
-                                </Box>
-                                <Chip
-                                    label={course.category}
-                                    size="small"
-                                    sx={{ mt: 1 }}
-                                />
-                            </CardContent>
-                            <CardActions sx={{ justifyContent: 'space-between', p: 2 }}>
-                                <Box>
-                                    <Tooltip title="View Course">
-                                        <IconButton
-                                            size="small"
-                                            color="primary"
-                                            onClick={() => handleViewCourse(course.id)}
-                                        >
-                                            <ViewIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Edit Course">
-                                        <IconButton
-                                            size="small"
-                                            color="secondary"
-                                            onClick={() => handleEditCourse(course.id)}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Delete Course">
-                                        <IconButton
-                                            size="small"
-                                            color="error"
-                                            onClick={() => handleDeleteCourse(course.id)}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </Tooltip>
-                                </Box>
-                                <Button
-                                    variant="contained"
-                                    size="small"
-                                    sx={{ borderRadius: 2 }}
-                                >
-                                    Enroll
-                                </Button>
-                            </CardActions>
-                        </Card>
+                        <CourseCard
+                            course={course}
+                            onView={handleViewCourse}
+                            onEdit={handleEditCourse}
+                            onDelete={handleDeleteCourse}
+                            onEnroll={() => console.log('Enroll in course:', course.id)}
+                        />
                     </Grid>
                 ))}
             </Grid>

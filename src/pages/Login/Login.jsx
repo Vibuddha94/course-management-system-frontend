@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper, Link, Stack, Avatar, Fade, Grow } from '@mui/material';
+import { Box, Button, Typography, Paper, Link, Stack, Avatar, Fade, Grow } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
 import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
+import { FormField } from '../../components';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -52,29 +56,45 @@ function Login() {
                                 Sign In
                             </Typography>
                             <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit} width="100%">
-                                <TextField
+                                <FormField
+                                    name="email"
                                     label="Email"
                                     type="email"
-                                    fullWidth
-                                    margin="normal"
-                                    required
-                                    variant="outlined"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
+                                    required
                                     disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                    startIcon={<EmailIcon />}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
-                                <TextField
+                                <FormField
+                                    name="password"
                                     label="Password"
                                     type="password"
-                                    fullWidth
-                                    margin="normal"
-                                    required
-                                    variant="outlined"
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
+                                    required
                                     disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                    startIcon={<LockIcon />}
+                                    showPassword={showPassword}
+                                    onTogglePassword={() => setShowPassword(!showPassword)}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
                                 <Button
                                     variant="contained"

@@ -14,6 +14,7 @@ import {
     Group as GroupIcon,
     Person as PersonIcon
 } from '@mui/icons-material';
+import { StatsCard } from '../../components';
 
 function DashboardHome({ user }) {
     const navigate = useNavigate();
@@ -89,59 +90,54 @@ function DashboardHome({ user }) {
                 {/* Stats Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
-                            <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {adminStats.totalCourses}
-                            </Typography>
-                            <Typography variant="body2">
-                                Total Courses
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={SchoolIcon}
+                            value={adminStats.totalCourses}
+                            label="Total Courses"
+                            bgColor="primary.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                     <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'secondary.main', color: 'white' }}>
-                            <GroupIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {adminStats.totalStudents}
-                            </Typography>
-                            <Typography variant="body2">
-                                Total Students
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={GroupIcon}
+                            value={adminStats.totalStudents}
+                            label="Total Students"
+                            bgColor="secondary.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                     <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
-                            <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {adminStats.totalInstructors}
-                            </Typography>
-                            <Typography variant="body2">
-                                Instructors
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={PersonIcon}
+                            value={adminStats.totalInstructors}
+                            label="Instructors"
+                            bgColor="success.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                     <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'warning.main', color: 'white' }}>
-                            <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {adminStats.activeCourses}
-                            </Typography>
-                            <Typography variant="body2">
-                                Active Courses
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={SchoolIcon}
+                            value={adminStats.activeCourses}
+                            label="Active Courses"
+                            bgColor="warning.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                     <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'error.main', color: 'white' }}>
-                            <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {adminStats.pendingApprovals}
-                            </Typography>
-                            <Typography variant="body2">
-                                Pending Approvals
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={PersonIcon}
+                            value={adminStats.pendingApprovals}
+                            label="Pending Approvals"
+                            bgColor="error.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                 </Grid>
 
@@ -260,48 +256,44 @@ function DashboardHome({ user }) {
                 {/* Stats Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
-                            <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {studentStats.enrolledCourses}
-                            </Typography>
-                            <Typography variant="body2">
-                                Enrolled Courses
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={SchoolIcon}
+                            value={studentStats.enrolledCourses}
+                            label="Enrolled Courses"
+                            bgColor="primary.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                     <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
-                            <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {studentStats.completedCourses}
-                            </Typography>
-                            <Typography variant="body2">
-                                Completed Courses
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={SchoolIcon}
+                            value={studentStats.completedCourses}
+                            label="Completed Courses"
+                            bgColor="success.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                     <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'warning.main', color: 'white' }}>
-                            <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {studentStats.currentGPA}
-                            </Typography>
-                            <Typography variant="body2">
-                                Current GPA
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={PersonIcon}
+                            value={studentStats.currentGPA}
+                            label="Current GPA"
+                            bgColor="warning.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                     <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                        <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'error.main', color: 'white' }}>
-                            <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
-                            <Typography variant="h4" fontWeight={700}>
-                                {studentStats.upcomingAssignments}
-                            </Typography>
-                            <Typography variant="body2">
-                                Upcoming Assignments
-                            </Typography>
-                        </Paper>
+                        <StatsCard
+                            icon={SchoolIcon}
+                            value={studentStats.upcomingAssignments}
+                            label="Upcoming Assignments"
+                            bgColor="error.main"
+                            textColor="white"
+                            elevation={3}
+                        />
                     </Grid>
                 </Grid>
 
@@ -383,48 +375,44 @@ function DashboardHome({ user }) {
             {/* Stats Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
-                        <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700}>
-                            {instructorStats.teachingCourses}
-                        </Typography>
-                        <Typography variant="body2">
-                            Teaching Courses
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={SchoolIcon}
+                        value={instructorStats.teachingCourses}
+                        label="Teaching Courses"
+                        bgColor="primary.main"
+                        textColor="white"
+                        elevation={3}
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'secondary.main', color: 'white' }}>
-                        <GroupIcon sx={{ fontSize: 40, mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700}>
-                            {instructorStats.totalStudents}
-                        </Typography>
-                        <Typography variant="body2">
-                            Total Students
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={GroupIcon}
+                        value={instructorStats.totalStudents}
+                        label="Total Students"
+                        bgColor="secondary.main"
+                        textColor="white"
+                        elevation={3}
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'success.main', color: 'white' }}>
-                        <PersonIcon sx={{ fontSize: 40, mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700}>
-                            {instructorStats.averageRating}
-                        </Typography>
-                        <Typography variant="body2">
-                            Average Rating
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={PersonIcon}
+                        value={instructorStats.averageRating}
+                        label="Average Rating"
+                        bgColor="success.main"
+                        textColor="white"
+                        elevation={3}
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                    <Paper elevation={3} sx={{ p: 3, textAlign: 'center', bgcolor: 'warning.main', color: 'white' }}>
-                        <SchoolIcon sx={{ fontSize: 40, mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700}>
-                            {instructorStats.pendingGrading}
-                        </Typography>
-                        <Typography variant="body2">
-                            Pending Grading
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={SchoolIcon}
+                        value={instructorStats.pendingGrading}
+                        label="Pending Grading"
+                        bgColor="warning.main"
+                        textColor="white"
+                        elevation={3}
+                    />
                 </Grid>
             </Grid>
 

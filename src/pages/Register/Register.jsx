@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper, Link, Stack, Avatar, Fade, Grow } from '@mui/material';
+import { Box, Button, Typography, Paper, Link, Stack, Avatar, Fade, Grow } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import {
+    Person as PersonIcon,
+    Email as EmailIcon,
+    Lock as LockIcon,
+    Phone as PhoneIcon,
+    LocationOn as LocationIcon,
+    Cake as CakeIcon
+} from '@mui/icons-material';
 import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
+import { FormField } from '../../components';
 
 function Register() {
     const [name, setName] = useState('');
@@ -12,6 +21,7 @@ function Register() {
     const [contactNumber, setContactNumber] = useState('');
     const [address, setAddress] = useState('');
     const [age, setAge] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -62,75 +72,125 @@ function Register() {
                                 Student Registration
                             </Typography>
                             <Box component="form" noValidate autoComplete="off" width="100%" onSubmit={handleSubmit}>
-                                <TextField
+                                <FormField
+                                    name="name"
                                     label="Name"
-                                    fullWidth
-                                    margin="dense"
-                                    required
-                                    variant="outlined"
                                     value={name}
                                     onChange={e => setName(e.target.value)}
+                                    required
                                     disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                    margin="dense"
+                                    startIcon={<PersonIcon />}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
-                                <TextField
+                                <FormField
+                                    name="email"
                                     label="Email"
                                     type="email"
-                                    fullWidth
-                                    margin="dense"
-                                    required
-                                    variant="outlined"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
+                                    required
                                     disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                    margin="dense"
+                                    startIcon={<EmailIcon />}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
-                                <TextField
+                                <FormField
+                                    name="password"
                                     label="Password"
                                     type="password"
-                                    fullWidth
-                                    margin="dense"
-                                    required
-                                    variant="outlined"
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
+                                    required
                                     disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                    margin="dense"
+                                    startIcon={<LockIcon />}
+                                    showPassword={showPassword}
+                                    onTogglePassword={() => setShowPassword(!showPassword)}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
-                                <TextField
+                                <FormField
+                                    name="contactNumber"
                                     label="Contact Number"
                                     type="tel"
-                                    fullWidth
-                                    margin="dense"
-                                    required
-                                    variant="outlined"
                                     value={contactNumber}
                                     onChange={e => setContactNumber(e.target.value)}
-                                    disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
-                                />
-                                <TextField
-                                    label="Address"
-                                    fullWidth
-                                    margin="dense"
                                     required
-                                    variant="outlined"
+                                    disabled={loading}
+                                    margin="dense"
+                                    startIcon={<PhoneIcon />}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
+                                />
+                                <FormField
+                                    name="address"
+                                    label="Address"
                                     value={address}
                                     onChange={e => setAddress(e.target.value)}
+                                    required
                                     disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                    margin="dense"
+                                    startIcon={<LocationIcon />}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
-                                <TextField
+                                <FormField
+                                    name="age"
                                     label="Age"
                                     type="number"
-                                    fullWidth
-                                    margin="dense"
-                                    required
-                                    variant="outlined"
                                     value={age}
                                     onChange={e => setAge(e.target.value)}
+                                    required
                                     disabled={loading}
-                                    sx={{ transition: 'box-shadow 0.3s', boxShadow: 1, borderRadius: 2, bgcolor: 'white' }}
+                                    margin="dense"
+                                    startIcon={<CakeIcon />}
+                                    sx={{
+                                        transition: 'box-shadow 0.3s',
+                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        bgcolor: 'white',
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
                                 <Button
                                     variant="contained"

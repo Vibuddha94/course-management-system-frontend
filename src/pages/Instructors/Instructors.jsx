@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Box,
     Typography,
     Paper,
     Grid,
-    Card,
-    CardContent,
-    CardActions,
     Button,
-    Chip,
     Avatar,
-    IconButton,
     Tooltip,
     Fab,
     Table,
@@ -18,7 +13,7 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
+    TableRow as MuiTableRow,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -28,16 +23,15 @@ import {
 import {
     Person as PersonIcon,
     Add as AddIcon,
-    Edit as EditIcon,
-    Delete as DeleteIcon,
-    Visibility as ViewIcon,
     Email as EmailIcon,
     Phone as PhoneIcon,
-    School as SchoolIcon,
-    Star as StarIcon
+    School as SchoolIcon
 } from '@mui/icons-material';
 import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
+import TableRow from '../../components/TableRow/TableRow';
+import UserFormDialog from '../../components/UserFormDialog/UserFormDialog';
+import { StatsCard, PageHeader } from '../../components';
 
 const mockInstructors = [
     {
@@ -278,57 +272,33 @@ function Instructors() {
         setDeletingInstructorId(null);
     };
 
-    const handleViewInstructor = (instructorId) => {
-        console.log('View instructor:', instructorId);
-    };
-
     return (
         <Box sx={{ p: 3 }}>
             {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Box>
-                    <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
-                        Instructors
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                        Manage all instructors and their information
-                    </Typography>
-                </Box>
-                <Tooltip title="Add New Instructor">
-                    <Fab
-                        color="primary"
-                        aria-label="add instructor"
-                        onClick={handleAddInstructor}
-                        sx={{ boxShadow: 3 }}
-                    >
-                        <AddIcon />
-                    </Fab>
-                </Tooltip>
-            </Box>
+            <PageHeader
+                title="Instructors"
+                subtitle="Manage all instructors and their information"
+                onAdd={handleAddInstructor}
+                addTooltip="Add New Instructor"
+            />
 
             {/* Stats Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid span={{ xs: 12, sm: 6, md: 6 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <PersonIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="primary">
-                            {instructors.length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Total Instructors
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={PersonIcon}
+                        value={instructors.length}
+                        label="Total Instructors"
+                        color="primary.main"
+                    />
                 </Grid>
                 <Grid span={{ xs: 12, sm: 6, md: 6 }}>
-                    <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
-                        <SchoolIcon sx={{ fontSize: 40, color: 'secondary.main', mb: 1 }} />
-                        <Typography variant="h4" fontWeight={700} color="secondary.main">
-                            {totalCourses}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            Total Courses
-                        </Typography>
-                    </Paper>
+                    <StatsCard
+                        icon={SchoolIcon}
+                        value={totalCourses}
+                        label="Total Courses"
+                        color="secondary.main"
+                    />
                 </Grid>
             </Grid>
 
@@ -337,97 +307,25 @@ function Instructors() {
                 <TableContainer sx={{ overflow: 'hidden' }}>
                     <Table>
                         <TableHead>
-                            <TableRow sx={{ bgcolor: 'primary.main' }}>
+                            <MuiTableRow sx={{ bgcolor: 'primary.main' }}>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Instructor</TableCell>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Contact</TableCell>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Qualification</TableCell>
                                 <TableCell sx={{ color: 'white', fontWeight: 600 }}>Actions</TableCell>
-                            </TableRow>
+                            </MuiTableRow>
                         </TableHead>
                         <TableBody>
                             {instructors.map((instructor) => (
                                 <TableRow
                                     key={instructor.id}
-                                    hover
-                                    sx={{
-                                        backgroundColor: deletingInstructorId === instructor.id
-                                            ? 'rgba(220, 38, 38, 0.1)'
-                                            : 'transparent',
-                                        transition: 'background-color 0.3s ease',
-                                        border: deletingInstructorId === instructor.id
-                                            ? '2px solid rgba(220, 38, 38, 0.3)'
-                                            : 'none',
-                                        overflow: 'hidden'
-                                    }}
-                                >
-                                    {deletingInstructorId === instructor.id ? (
-                                        // Confirmation mode
-                                        <TableCell colSpan={4} sx={{ overflow: 'hidden' }}>
-                                            <Box sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                height: '57px',
-                                                px: 2,
-                                                overflow: 'hidden',
-                                                animation: 'slideInFromRight 0.4s ease-out',
-                                                '@keyframes slideInFromRight': {
-                                                    '0%': {
-                                                        transform: 'translateX(100%)',
-                                                        opacity: 0
-                                                    },
-                                                    '100%': {
-                                                        transform: 'translateX(0)',
-                                                        opacity: 1
-                                                    }
-                                                }
-                                            }}>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40 }}>
-                                                        <DeleteIcon sx={{ fontSize: 20 }} />
-                                                    </Avatar>
-                                                    <Box>
-                                                        <Typography variant="subtitle1" color="error.main" fontWeight={600}>
-                                                            Delete {instructor.name}?
-                                                        </Typography>
-                                                        <Typography variant="caption" color="text.secondary">
-                                                            This action cannot be undone
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="inherit"
-                                                        size="small"
-                                                        onClick={cancelDelete}
-                                                        sx={{
-                                                            borderRadius: 1,
-                                                            px: 2,
-                                                            fontWeight: 600
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </Button>
-                                                    <Button
-                                                        variant="contained"
-                                                        color="error"
-                                                        size="small"
-                                                        onClick={() => confirmDelete(instructor.id)}
-                                                        sx={{
-                                                            borderRadius: 1,
-                                                            px: 2,
-                                                            fontWeight: 600,
-                                                            boxShadow: 1
-                                                        }}
-                                                    >
-                                                        Delete
-                                                    </Button>
-                                                </Box>
-                                            </Box>
-                                        </TableCell>
-                                    ) : (
-                                        // Normal row mode
+                                    item={instructor}
+                                    isDeleting={deletingInstructorId === instructor.id}
+                                    onEdit={handleEditInstructor}
+                                    onDelete={handleDeleteInstructor}
+                                    onConfirmDelete={confirmDelete}
+                                    onCancelDelete={cancelDelete}
+                                    columnsCount={4}
+                                    renderCells={(instructor) => (
                                         <>
                                             <TableCell>
                                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -465,31 +363,9 @@ function Instructors() {
                                                     {instructor.instructor?.qualification || 'Not specified'}
                                                 </Typography>
                                             </TableCell>
-                                            <TableCell>
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
-                                                    <Tooltip title="Edit Instructor">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="secondary"
-                                                            onClick={() => handleEditInstructor(instructor.id)}
-                                                        >
-                                                            <EditIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete Instructor">
-                                                        <IconButton
-                                                            size="small"
-                                                            color="error"
-                                                            onClick={() => handleDeleteInstructor(instructor.id)}
-                                                        >
-                                                            <DeleteIcon />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Box>
-                                            </TableCell>
                                         </>
                                     )}
-                                </TableRow>
+                                />
                             ))}
                         </TableBody>
                     </Table>
@@ -497,125 +373,32 @@ function Instructors() {
             </Paper>
 
             {/* Add Instructor Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                <DialogTitle>Add New Instructor</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
-                            label="Name"
-                            fullWidth
-                            value={formData.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Email"
-                            type="email"
-                            fullWidth
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            value={formData.password}
-                            onChange={(e) => handleInputChange('password', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Contact Number"
-                            type="number"
-                            fullWidth
-                            value={formData.contactNumber}
-                            onChange={(e) => handleInputChange('contactNumber', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Qualification"
-                            fullWidth
-                            value={formData.qualification}
-                            onChange={(e) => handleInputChange('qualification', e.target.value)}
-                            disabled={loading}
-                            placeholder="e.g., BSc Software Engineering"
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog} disabled={loading}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        disabled={loading}
-                    >
-                        {loading ? 'Adding...' : 'Add Instructor'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <UserFormDialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                onSubmit={handleSubmit}
+                title="Add New Instructor"
+                formData={formData}
+                onInputChange={handleInputChange}
+                loading={loading}
+                submitLabel="Add Instructor"
+                userType="Instructor"
+                isEdit={false}
+            />
 
             {/* Edit Instructor Dialog */}
-            <Dialog open={openEditDialog} onClose={handleCloseEditDialog} maxWidth="sm" fullWidth>
-                <DialogTitle>Edit Instructor</DialogTitle>
-                <DialogContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
-                            label="Name"
-                            fullWidth
-                            value={formData.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Email"
-                            type="email"
-                            fullWidth
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Password"
-                            type="password"
-                            fullWidth
-                            value={formData.password}
-                            onChange={(e) => handleInputChange('password', e.target.value)}
-                            disabled={loading}
-                            placeholder="Enter new password"
-                        />
-                        <TextField
-                            label="Contact Number"
-                            type="number"
-                            fullWidth
-                            value={formData.contactNumber}
-                            onChange={(e) => handleInputChange('contactNumber', e.target.value)}
-                            disabled={loading}
-                        />
-                        <TextField
-                            label="Qualification"
-                            fullWidth
-                            value={formData.qualification}
-                            onChange={(e) => handleInputChange('qualification', e.target.value)}
-                            disabled={loading}
-                            placeholder="e.g., BSc Software Engineering"
-                        />
-                    </Box>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseEditDialog} disabled={loading}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleUpdateSubmit}
-                        variant="contained"
-                        disabled={loading}
-                    >
-                        {loading ? 'Updating...' : 'Update Instructor'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <UserFormDialog
+                open={openEditDialog}
+                onClose={handleCloseEditDialog}
+                onSubmit={handleUpdateSubmit}
+                title="Edit Instructor"
+                formData={formData}
+                onInputChange={handleInputChange}
+                loading={loading}
+                submitLabel="Update Instructor"
+                userType="Instructor"
+                isEdit={true}
+            />
         </Box>
     );
 }
