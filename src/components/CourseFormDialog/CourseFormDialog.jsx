@@ -8,9 +8,23 @@ import {
     TextField,
     Box,
     Typography,
-    CircularProgress
+    CircularProgress,
+    Paper,
+    Grid,
+    Card,
+    CardContent,
+    CardActions,
+    Fab,
+    IconButton
 } from '@mui/material';
+import {
+    Add as AddIcon,
+    Delete as DeleteIcon,
+    InsertDriveFile as FileIcon,
+    CloudUpload as CloudUploadIcon
+} from '@mui/icons-material';
 import { FormField } from '../';
+import apiService from '../../service/AxiosOrder';
 
 const CourseFormDialog = ({
     open,
@@ -23,12 +37,23 @@ const CourseFormDialog = ({
 }) => {
     const [formData, setFormData] = useState(initialData);
     const [errors, setErrors] = useState({});
+    const [courseMaterials, setCourseMaterials] = useState([]);
+    const [materialsLoading, setMaterialsLoading] = useState(false);
+
+    // Check if this is edit mode (has an id)
+    const isEditMode = initialData && initialData.id;
 
     // Reset form data when dialog opens
     useEffect(() => {
         if (open) {
             setFormData(initialData);
             setErrors({});
+            // Fetch course materials if in edit mode
+            if (isEditMode && initialData.id) {
+                fetchCourseMaterials();
+            } else {
+                setCourseMaterials([]);
+            }
         }
     }, [open]); // Remove initialData from dependency array
 
@@ -38,6 +63,35 @@ const CourseFormDialog = ({
             setFormData(initialData);
         }
     }, [initialData.name, initialData.description]); // Only depend on actual values
+
+    const fetchCourseMaterials = async () => {
+        try {
+            setMaterialsLoading(true);
+            const response = await apiService.get(`/course-modules/get/all/${initialData.id}`);
+            setCourseMaterials(response.data || []);
+        } catch (error) {
+            console.error('Error fetching course materials:', error);
+            setCourseMaterials([]);
+        } finally {
+            setMaterialsLoading(false);
+        }
+    };
+
+    const handleDeleteMaterial = async (material) => {
+        try {
+            await apiService.delete(`/course-modules/${material.id}`);
+            // Remove from local state
+            setCourseMaterials(prev => prev.filter(m => m.id !== material.id));
+        } catch (error) {
+            console.error('Error deleting material:', error);
+            // You might want to show a toast notification here
+        }
+    };
+
+    const handleAddMaterial = () => {
+        // TODO: Implement add material functionality
+        console.log('Add material clicked');
+    };
 
     const handleChange = (field) => (event) => {
         const value = event.target.value;
@@ -79,14 +133,75 @@ const CourseFormDialog = ({
     const handleClose = () => {
         setFormData(initialData);
         setErrors({});
+        setCourseMaterials([]);
         onClose();
     };
+
+    // Material Card Component for Edit Mode
+    const MaterialCard = ({ material }) => (
+        <Card
+            elevation={2}
+            sx={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: 4
+                }
+            }}
+        >
+            <CardContent sx={{ flexGrow: 1, p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <FileIcon color="primary" fontSize="small" />
+                    <Typography
+                        variant="body2"
+                        fontWeight={600}
+                        sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                        }}
+                        title={material.originalName} // Show full name on hover
+                    >
+                        {material.originalName || 'Material'}
+                    </Typography>
+                </Box>
+                {material.savedName && (
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        Saved as: {material.savedName}
+                    </Typography>
+                )}
+            </CardContent>
+            <CardActions sx={{ p: 1, pt: 0 }}>
+                <Button
+                    size="small"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => handleDeleteMaterial(material)}
+                    color="error"
+                    sx={{ borderRadius: 1 }}
+                >
+                    Delete
+                </Button>
+            </CardActions>
+        </Card>
+    );
 
     return (
         <Dialog
             open={open}
             onClose={handleClose}
-            maxWidth="sm"
+            maxWidth={isEditMode ? "md" : "sm"}
             fullWidth
             disableEscapeKeyDown={loading}
             disableEnforceFocus={false}
@@ -121,6 +236,66 @@ const CourseFormDialog = ({
                         rows={4}
                         required
                     />
+
+                    {/* Course Materials Section - Only show in edit mode */}
+                    {isEditMode && (
+                        <Paper elevation={1} sx={{ p: 3, borderRadius: 2, mt: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                <Typography variant="h6" fontWeight={600}>
+                                    Course Materials
+                                </Typography>
+                                <Fab
+                                    size="small"
+                                    color="primary"
+                                    onClick={handleAddMaterial}
+                                    sx={{ boxShadow: 2 }}
+                                >
+                                    <AddIcon />
+                                </Fab>
+                            </Box>
+
+                            {materialsLoading ? (
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    minHeight: '120px'
+                                }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Loading materials...
+                                    </Typography>
+                                </Box>
+                            ) : courseMaterials.length > 0 ? (
+                                <Grid container spacing={2}>
+                                    {courseMaterials.map((material, index) => (
+                                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={material.id || index}>
+                                            <MaterialCard material={material} />
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            ) : (
+                                <Box sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    minHeight: '120px',
+                                    border: '2px dashed',
+                                    borderColor: 'divider',
+                                    borderRadius: 2,
+                                    backgroundColor: 'grey.50'
+                                }}>
+                                    <CloudUploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
+                                    <Typography variant="body2" color="text.secondary" textAlign="center">
+                                        No course materials available
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary" textAlign="center">
+                                        Click the + button to add materials
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Paper>
+                    )}
                 </Box>
             </DialogContent>
 

@@ -399,6 +399,7 @@ function Courses() {
                 submitLabel="Update Course"
                 loading={editLoading}
                 initialData={editingCourse ? {
+                    id: editingCourse.id,
                     name: editingCourse.title,
                     description: editingCourse.description
                 } : { name: '', description: '' }}
