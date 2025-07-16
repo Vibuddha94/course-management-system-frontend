@@ -2,24 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     Box,
     Typography,
-    Paper,
-    Grid,
-    Card,
-    CardContent,
-    CardActions,
-    Button,
-    Chip,
-    Avatar,
-    IconButton,
-    Tooltip,
-    Fab
+    Grid
 } from '@mui/material';
 import {
     School as SchoolIcon,
-    Add as AddIcon,
-    Edit as EditIcon,
-    Delete as DeleteIcon,
-    Visibility as ViewIcon,
     Assignment as AssignmentIcon,
     Group as GroupIcon
 } from '@mui/icons-material';
@@ -182,6 +168,56 @@ function Courses() {
         }
     };
 
+    const handleCreateCourseWithFiles = async (courseData, pendingFiles) => {
+        try {
+            setCreateLoading(true);
+
+            // Get current user ID from localStorage
+            const user = JSON.parse(localStorage.getItem('user'));
+            const userId = user?.id;
+
+            if (!userId) {
+                console.error('User ID not found in localStorage');
+                return;
+            }
+
+            // Step 1: Create the course
+            const courseResponse = await apiService.post(`/course/${userId}`, courseData);
+
+            if (courseResponse.data && courseResponse.data.id) {
+                const newCourseId = courseResponse.data.id;
+
+                // Step 2: Upload pending files to the new course
+                if (pendingFiles.length > 0) {
+                    const formData = new FormData();
+                    pendingFiles.forEach(pendingFile => {
+                        formData.append('files', pendingFile.file);
+                    });
+
+                    try {
+                        await apiService.post(`/course-modules/${newCourseId}`, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        });
+                    } catch (fileError) {
+                        console.error('Error uploading files after course creation:', fileError);
+                        // Course was created successfully, but file upload failed
+                        // You might want to show a warning to the user
+                    }
+                }
+
+                // Close the dialog and refresh courses
+                setCreateDialogOpen(false);
+                await fetchCourses();
+            }
+        } catch (error) {
+            console.error('Error creating course:', error);
+        } finally {
+            setCreateLoading(false);
+        }
+    };
+
     const handleCloseCreateDialog = () => {
         setCreateDialogOpen(false);
         setCreateLoading(false);
@@ -232,6 +268,66 @@ function Courses() {
         }
     };
 
+    const handleUpdateCourseWithFiles = async (courseData, pendingFiles, pendingDeletions) => {
+        try {
+            setEditLoading(true);
+
+            if (!editingCourse) {
+                console.error('No course selected for editing');
+                return;
+            }
+
+            // Step 1: Update the course
+            const courseResponse = await apiService.put(`/course/${editingCourse.id}`, courseData);
+
+            if (courseResponse.data) {
+                // Step 2: Delete pending materials
+                if (pendingDeletions && pendingDeletions.length > 0) {
+                    try {
+                        await Promise.all(
+                            pendingDeletions.map(materialId =>
+                                apiService.delete(`/course-modules/${materialId}`)
+                            )
+                        );
+                    } catch (deleteError) {
+                        console.error('Error deleting materials during course update:', deleteError);
+                        // Course was updated successfully, but material deletion failed
+                        // You might want to show a warning to the user
+                    }
+                }
+
+                // Step 3: Upload pending files to the course
+                if (pendingFiles && pendingFiles.length > 0) {
+                    const formData = new FormData();
+                    pendingFiles.forEach(pendingFile => {
+                        formData.append('files', pendingFile.file);
+                    });
+
+                    try {
+                        await apiService.post(`/course-modules/${editingCourse.id}`, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        });
+                    } catch (fileError) {
+                        console.error('Error uploading files after course update:', fileError);
+                        // Course was updated successfully, but file upload failed
+                        // You might want to show a warning to the user
+                    }
+                }
+
+                // Close the dialog and refresh courses
+                setEditDialogOpen(false);
+                setEditingCourse(null);
+                await fetchCourses();
+            }
+        } catch (error) {
+            console.error('Error updating course:', error);
+        } finally {
+            setEditLoading(false);
+        }
+    };
+
     const handleCloseEditDialog = () => {
         setEditDialogOpen(false);
         setEditLoading(false);
@@ -260,6 +356,17 @@ function Courses() {
                 return;
             }
 
+            // Step 1: Delete all course materials first
+            try {
+                await apiService.delete(`/course-modules/delete/all/${courseToDelete.id}`);
+                console.log('Course materials deleted successfully');
+            } catch (materialError) {
+                console.error('Error deleting course materials:', materialError);
+                // Continue with course deletion even if materials deletion fails
+                // You might want to show a warning to the user here
+            }
+
+            // Step 2: Delete the course
             const response = await apiService.delete(`/course/${courseToDelete.id}`);
 
             // Close the dialog first
@@ -357,6 +464,7 @@ function Courses() {
                                             onDelete={permissions.canDelete ? handleDeleteCourse : undefined}
                                             showActions={permissions.showActions}
                                             showEnrollButton={false}
+                                            userRole={userRole}
                                         />
                                     </Box>
                                 </Grid>
@@ -385,6 +493,7 @@ function Courses() {
                 open={createDialogOpen}
                 onClose={handleCloseCreateDialog}
                 onSubmit={handleCreateCourse}
+                onCourseCreated={handleCreateCourseWithFiles}
                 title="Create New Course"
                 submitLabel="Create Course"
                 loading={createLoading}
@@ -395,10 +504,12 @@ function Courses() {
                 open={editDialogOpen}
                 onClose={handleCloseEditDialog}
                 onSubmit={handleUpdateCourse}
+                onCourseCreated={handleUpdateCourseWithFiles}
                 title="Edit Course"
                 submitLabel="Update Course"
                 loading={editLoading}
                 initialData={editingCourse ? {
+                    id: editingCourse.id,
                     name: editingCourse.title,
                     description: editingCourse.description
                 } : { name: '', description: '' }}
