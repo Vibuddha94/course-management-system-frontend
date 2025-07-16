@@ -57,23 +57,13 @@ function Students() {
 
     useEffect(() => {
         const fetchCourses = async () => {
-            try {
-                const response = await apiService.get('/course');
-                setTotalCourses(response.data.length || 0);
-            } catch (error) {
-                console.error('Error fetching courses:', error);
-                // Error will be handled globally by AxiosOrder
-            }
+            const response = await apiService.get('/course');
+            setTotalCourses(response.data.length || 0);
         };
 
         const fetchStudents = async () => {
-            try {
-                const response = await apiService.get('/user/getAll-by-role/Student');
-                setStudents(response.data || []);
-            } catch (error) {
-                console.error('Error fetching students:', error);
-                // Error will be handled globally by AxiosOrder
-            }
+            const response = await apiService.get('/user/getAll-by-role/Student');
+            setStudents(response.data || []);
         };
 
         fetchCourses();
@@ -145,12 +135,8 @@ function Students() {
             toast.success('Student added successfully!');
             handleCloseDialog();
 
-            // Refresh the students list
             const response = await apiService.get('/user/getAll-by-role/Student');
             setStudents(response.data || []);
-        } catch (error) {
-            // Error will be handled globally by AxiosOrder
-            console.error('Error adding student:', error);
         } finally {
             setLoading(false);
         }
@@ -181,39 +167,30 @@ function Students() {
             toast.success('Student updated successfully!');
             handleCloseEditDialog();
 
-            // Refresh the students list
             const response = await apiService.get('/user/getAll-by-role/Student');
             setStudents(response.data || []);
-        } catch (error) {
-            // Error will be handled globally by AxiosOrder
-            console.error('Error updating student:', error);
         } finally {
             setLoading(false);
         }
     };
 
     const handleEditStudent = async (studentId) => {
-        // Remove focus from the edit button to prevent aria-hidden accessibility warning
         if (document.activeElement && document.activeElement.blur) {
             document.activeElement.blur();
         }
-        try {
-            const response = await apiService.get(`/user/${studentId}`);
-            const student = response.data;
-            setEditingStudent(student);
-            setFormData({
-                name: student.name,
-                email: student.email,
-                password: '', // Don't pre-fill password for security
-                contactNumber: student.contactNumber.toString(),
-                address: student.student?.address || '',
-                age: student.student?.age ? student.student.age.toString() : ''
-            });
-            setOpenEditDialog(true);
-        } catch (error) {
-            console.error('Error fetching student:', error);
-            // Error will be handled globally by AxiosOrder
-        }
+
+        const response = await apiService.get(`/user/${studentId}`);
+        const student = response.data;
+        setEditingStudent(student);
+        setFormData({
+            name: student.name,
+            email: student.email,
+            password: '',
+            contactNumber: student.contactNumber.toString(),
+            address: student.student?.address || '',
+            age: student.student?.age ? student.student.age.toString() : ''
+        });
+        setOpenEditDialog(true);
     };
 
     const handleDeleteStudent = (studentId) => {
@@ -230,13 +207,11 @@ function Students() {
             toast.success('Student deleted successfully!');
             setDeletingStudentId(null);
 
-            // Refresh the students list
             const response = await apiService.get('/user/getAll-by-role/Student');
             setStudents(response.data || []);
         } catch (error) {
             console.error('Error deleting student:', error);
             setDeletingStudentId(null);
-            // Error will be handled globally by AxiosOrder
         }
     };
 

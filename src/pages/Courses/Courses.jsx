@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -11,39 +11,7 @@ import {
 } from '@mui/icons-material';
 import { StatsCard, PageHeader, CourseCard, LoadingSpinner, CourseFormDialog, ConfirmationDialog, CourseDetailsDialog } from '../../components';
 import apiService from '../../service/AxiosOrder';
-
-const mockCourses = [
-    {
-        id: 1,
-        title: 'Introduction to React',
-        description: 'Learn the fundamentals of React development',
-        instructor: 'John Smith',
-        students: 45,
-        duration: '8 weeks',
-        status: 'active',
-        category: 'Programming'
-    },
-    {
-        id: 2,
-        title: 'Advanced JavaScript',
-        description: 'Deep dive into modern JavaScript concepts',
-        instructor: 'Sarah Johnson',
-        students: 32,
-        duration: '10 weeks',
-        status: 'active',
-        category: 'Programming'
-    },
-    {
-        id: 3,
-        title: 'UI/UX Design Principles',
-        description: 'Master the art of user interface design',
-        instructor: 'Mike Wilson',
-        students: 28,
-        duration: '6 weeks',
-        status: 'draft',
-        category: 'Design'
-    }
-];
+import { toast } from 'sonner';
 
 function Courses() {
     const [courses, setCourses] = useState([]);
@@ -63,61 +31,55 @@ function Courses() {
     const [selectedCourse, setSelectedCourse] = useState(null);
     const addButtonRef = useRef(null);
 
-    // Get current user role
-    const getCurrentUserRole = () => {
+    // Memoized user role and permissions
+    const { userRole, permissions } = useMemo(() => {
+        const getCurrentUserRole = () => {
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                return user?.role || 'Student';
+            } catch {
+                return 'Student';
+            }
+        };
+
+        const role = getCurrentUserRole();
+        const perms = {
+            canCreate: role === 'Instructor',
+            canView: true,
+            canEdit: role === 'Instructor' || role === 'ADMIN',
+            canDelete: role === 'Instructor' || role === 'ADMIN',
+            showActions: true
+        };
+
+        return { userRole: role, permissions: perms };
+    }, []);
+
+    // Fetch functions with optimized error handling
+    const fetchStudents = useCallback(async () => {
+        setStudentsLoading(true);
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            return user?.role || 'Student';
-        } catch {
-            return 'Student';
-        }
-    };
-
-    const userRole = getCurrentUserRole();
-
-    // Role-based permissions
-    const permissions = {
-        canCreate: userRole === 'Instructor',           // Only instructors can create courses
-        canView: true,                                  // All roles can view courses
-        canEdit: userRole === 'Instructor' || userRole === 'ADMIN',    // Instructors and admins can edit
-        canDelete: userRole === 'Instructor' || userRole === 'ADMIN',  // Instructors and admins can delete
-        showActions: true                               // All roles can see action buttons (view for students, all for instructors/admins)
-    };
-
-    // Fetch students data from API
-    const fetchStudents = async () => {
-        try {
-            setStudentsLoading(true);
             const response = await apiService.get('/user/getAll-by-role/Student');
             setStudents(response.data);
-        } catch (error) {
-            console.error('Error fetching students:', error);
         } finally {
             setStudentsLoading(false);
         }
-    };
+    }, []);
 
-    // Fetch courses data from API
-    const fetchCourses = async () => {
+    const fetchCourses = useCallback(async () => {
+        setCoursesLoading(true);
         try {
-            setCoursesLoading(true);
             const response = await apiService.get('/course');
-            // Transform API data to match CourseCard component expectations
             const transformedCourses = response.data.map(course => ({
                 id: course.id,
                 title: course.name,
                 description: course.description || 'No description available',
-                status: 'active' // TODO: Add status field to backend
+                status: 'active'
             }));
             setCourses(transformedCourses);
-        } catch (error) {
-            console.error('Error fetching courses:', error);
-            // Fallback to mock data if API fails
-            setCourses(mockCourses);
         } finally {
             setCoursesLoading(false);
         }
-    };
+    }, []);
 
     // Load data on component mount
     useEffect(() => {
@@ -128,279 +90,209 @@ function Courses() {
         loadData();
     }, []);
 
-    const handleAddCourse = () => {
-        if (permissions.canCreate) {
-            // Blur the button to remove focus before opening dialog
-            if (addButtonRef.current) {
-                addButtonRef.current.blur();
-            }
-            setCreateDialogOpen(true);
-        } else {
-            console.log('Access denied: Only instructors can create courses');
+    // Optimized event handlers
+    const handleAddCourse = useCallback(() => {
+        if (!permissions.canCreate) return;
+
+        if (addButtonRef.current) {
+            addButtonRef.current.blur();
         }
-    };
+        setCreateDialogOpen(true);
+    }, [permissions.canCreate]);
 
-    const handleCreateCourse = async (courseData) => {
+    const handleCreateCourse = useCallback(async (courseData) => {
+        setCreateLoading(true);
         try {
-            setCreateLoading(true);
-
-            // Get current user ID from localStorage
             const user = JSON.parse(localStorage.getItem('user'));
             const userId = user?.id;
 
-            if (!userId) {
-                console.error('User ID not found in localStorage');
-                return;
-            }
+            if (!userId) return;
 
             const response = await apiService.post(`/course/${userId}`, courseData);
-
             if (response.data) {
-                // Close the dialog first
                 setCreateDialogOpen(false);
-                // Then refresh the courses list
                 await fetchCourses();
             }
-        } catch (error) {
-            console.error('Error creating course:', error);
         } finally {
             setCreateLoading(false);
         }
-    };
+    }, [fetchCourses]);
 
-    const handleCreateCourseWithFiles = async (courseData, pendingFiles) => {
+    const handleCreateCourseWithFiles = useCallback(async (courseData, pendingFiles) => {
+        setCreateLoading(true);
         try {
-            setCreateLoading(true);
-
-            // Get current user ID from localStorage
             const user = JSON.parse(localStorage.getItem('user'));
             const userId = user?.id;
 
-            if (!userId) {
-                console.error('User ID not found in localStorage');
-                return;
-            }
+            if (!userId) return;
 
-            // Step 1: Create the course
             const courseResponse = await apiService.post(`/course/${userId}`, courseData);
 
-            if (courseResponse.data && courseResponse.data.id) {
-                const newCourseId = courseResponse.data.id;
+            if (courseResponse.data && courseResponse.data.id && pendingFiles.length > 0) {
+                const formData = new FormData();
+                pendingFiles.forEach(pendingFile => {
+                    formData.append('files', pendingFile.file);
+                });
 
-                // Step 2: Upload pending files to the new course
-                if (pendingFiles.length > 0) {
-                    const formData = new FormData();
-                    pendingFiles.forEach(pendingFile => {
-                        formData.append('files', pendingFile.file);
-                    });
-
-                    try {
-                        await apiService.post(`/course-modules/${newCourseId}`, formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data'
-                            }
-                        });
-                    } catch (fileError) {
-                        console.error('Error uploading files after course creation:', fileError);
-                        // Course was created successfully, but file upload failed
-                        // You might want to show a warning to the user
-                    }
-                }
-
-                // Close the dialog and refresh courses
-                setCreateDialogOpen(false);
-                await fetchCourses();
+                await apiService.post(`/course-modules/${courseResponse.data.id}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
             }
-        } catch (error) {
-            console.error('Error creating course:', error);
+
+            setCreateDialogOpen(false);
+            await fetchCourses();
         } finally {
             setCreateLoading(false);
         }
-    };
+    }, [fetchCourses]);
 
-    const handleCloseCreateDialog = () => {
+    const handleCloseCreateDialog = useCallback(() => {
         setCreateDialogOpen(false);
         setCreateLoading(false);
-        // Ensure the button doesn't retain focus after dialog closes
         setTimeout(() => {
             if (addButtonRef.current) {
                 addButtonRef.current.blur();
             }
         }, 100);
-    };
+    }, []);
 
-    const handleEditCourse = (courseId) => {
-        if (permissions.canEdit) {
-            // Find the course to edit
-            const courseToEdit = courses.find(course => course.id === courseId);
-            if (courseToEdit) {
-                setEditingCourse(courseToEdit);
-                setEditDialogOpen(true);
-            }
-        } else {
-            console.log('Access denied: Only instructors and admins can edit courses');
+    const handleEditCourse = useCallback((courseId) => {
+        if (!permissions.canEdit) return;
+
+        // Remove focus from the edit button to prevent aria-hidden accessibility warning
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
         }
-    };
 
-    const handleUpdateCourse = async (courseData) => {
+        const courseToEdit = courses.find(course => course.id === courseId);
+        if (courseToEdit) {
+            setEditingCourse(courseToEdit);
+            setEditDialogOpen(true);
+        }
+    }, [permissions.canEdit, courses]);
+
+    const handleUpdateCourse = useCallback(async (courseData) => {
+        if (!editingCourse) return;
+
+        setEditLoading(true);
         try {
-            setEditLoading(true);
-
-            if (!editingCourse) {
-                console.error('No course selected for editing');
-                return;
-            }
-
             const response = await apiService.put(`/course/${editingCourse.id}`, courseData);
-
             if (response.data) {
-                // Close the dialog first
                 setEditDialogOpen(false);
-                // Clear editing course
                 setEditingCourse(null);
-                // Then refresh the courses list
                 await fetchCourses();
             }
-        } catch (error) {
-            console.error('Error updating course:', error);
         } finally {
             setEditLoading(false);
         }
-    };
+    }, [editingCourse, fetchCourses]);
 
-    const handleUpdateCourseWithFiles = async (courseData, pendingFiles, pendingDeletions) => {
+    const handleUpdateCourseWithFiles = useCallback(async (courseData, pendingFiles, pendingDeletions) => {
+        if (!editingCourse) return;
+
+        setEditLoading(true);
         try {
-            setEditLoading(true);
-
-            if (!editingCourse) {
-                console.error('No course selected for editing');
-                return;
-            }
-
-            // Step 1: Update the course
             const courseResponse = await apiService.put(`/course/${editingCourse.id}`, courseData);
 
             if (courseResponse.data) {
-                // Step 2: Delete pending materials
-                if (pendingDeletions && pendingDeletions.length > 0) {
-                    try {
-                        await Promise.all(
-                            pendingDeletions.map(materialId =>
-                                apiService.delete(`/course-modules/${materialId}`)
-                            )
-                        );
-                    } catch (deleteError) {
-                        console.error('Error deleting materials during course update:', deleteError);
-                        // Course was updated successfully, but material deletion failed
-                        // You might want to show a warning to the user
-                    }
+                // Delete pending materials
+                if (pendingDeletions?.length > 0) {
+                    await Promise.all(
+                        pendingDeletions.map(materialId =>
+                            apiService.delete(`/course-modules/${materialId}`)
+                        )
+                    );
                 }
 
-                // Step 3: Upload pending files to the course
-                if (pendingFiles && pendingFiles.length > 0) {
+                // Upload pending files
+                if (pendingFiles?.length > 0) {
                     const formData = new FormData();
                     pendingFiles.forEach(pendingFile => {
                         formData.append('files', pendingFile.file);
                     });
 
-                    try {
-                        await apiService.post(`/course-modules/${editingCourse.id}`, formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data'
-                            }
-                        });
-                    } catch (fileError) {
-                        console.error('Error uploading files after course update:', fileError);
-                        // Course was updated successfully, but file upload failed
-                        // You might want to show a warning to the user
-                    }
+                    await apiService.post(`/course-modules/${editingCourse.id}`, formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
                 }
 
-                // Close the dialog and refresh courses
                 setEditDialogOpen(false);
                 setEditingCourse(null);
                 await fetchCourses();
             }
-        } catch (error) {
-            console.error('Error updating course:', error);
         } finally {
             setEditLoading(false);
         }
-    };
+    }, [editingCourse, fetchCourses]);
 
-    const handleCloseEditDialog = () => {
+    const handleCloseEditDialog = useCallback(() => {
         setEditDialogOpen(false);
         setEditLoading(false);
         setEditingCourse(null);
-    };
+    }, []);
 
-    const handleDeleteCourse = (courseId) => {
-        if (permissions.canDelete) {
-            // Find the course to delete
-            const courseToDelete = courses.find(course => course.id === courseId);
-            if (courseToDelete) {
-                setCourseToDelete(courseToDelete);
-                setDeleteDialogOpen(true);
-            }
-        } else {
-            console.log('Access denied: Only instructors and admins can delete courses');
+    const handleDeleteCourse = useCallback((courseId) => {
+        if (!permissions.canDelete) return;
+
+        // Remove focus from the delete button to prevent aria-hidden accessibility warning
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
         }
-    };
 
-    const handleConfirmDeleteCourse = async () => {
+        const courseToDelete = courses.find(course => course.id === courseId);
+        if (courseToDelete) {
+            setCourseToDelete(courseToDelete);
+            setDeleteDialogOpen(true);
+        }
+    }, [permissions.canDelete, courses]);
+
+    const handleConfirmDeleteCourse = useCallback(async () => {
+        if (!courseToDelete) return;
+
+        setDeleteLoading(true);
         try {
-            setDeleteLoading(true);
-
-            if (!courseToDelete) {
-                console.error('No course selected for deletion');
-                return;
-            }
-
-            // Step 1: Delete all course materials first
+            // Try to delete course materials first, but don't fail if there are no materials
             try {
                 await apiService.delete(`/course-modules/delete/all/${courseToDelete.id}`);
-                console.log('Course materials deleted successfully');
-            } catch (materialError) {
-                console.error('Error deleting course materials:', materialError);
-                // Continue with course deletion even if materials deletion fails
-                // You might want to show a warning to the user here
+            } catch (error) {
+                // If there are no course materials, the backend sends an error
+                // But we should still proceed to delete the course
             }
 
-            // Step 2: Delete the course
-            const response = await apiService.delete(`/course/${courseToDelete.id}`);
-
-            // Close the dialog first
+            // Always proceed to delete the course itself
+            await apiService.delete(`/course/${courseToDelete.id}`);
+            toast.success(`Course "${courseToDelete.title}" deleted successfully!`);
             setDeleteDialogOpen(false);
-            // Clear course to delete
             setCourseToDelete(null);
-            // Then refresh the courses list
             await fetchCourses();
-        } catch (error) {
-            console.error('Error deleting course:', error);
         } finally {
             setDeleteLoading(false);
         }
-    };
+    }, [courseToDelete, fetchCourses]);
 
-    const handleCloseDeleteDialog = () => {
+    const handleCloseDeleteDialog = useCallback(() => {
         setDeleteDialogOpen(false);
         setDeleteLoading(false);
         setCourseToDelete(null);
-    };
+    }, []);
 
-    const handleViewCourse = (courseId) => {
-        // Find the course to view
+    const handleViewCourse = useCallback((courseId) => {
+        // Remove focus from the view button to prevent aria-hidden accessibility warning
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+        }
+
         const courseToView = courses.find(course => course.id === courseId);
         if (courseToView) {
             setSelectedCourse(courseToView);
             setDetailsDialogOpen(true);
         }
-    };
+    }, [courses]);
 
-    const handleCloseDetailsDialog = () => {
+    const handleCloseDetailsDialog = useCallback(() => {
         setDetailsDialogOpen(false);
         setSelectedCourse(null);
-    };
+    }, []);
 
     return (
         <Box sx={{ p: 3 }}>

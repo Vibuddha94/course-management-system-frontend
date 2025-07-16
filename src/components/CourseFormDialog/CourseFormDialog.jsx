@@ -5,7 +5,6 @@ import {
     DialogContent,
     DialogActions,
     Button,
-    TextField,
     Box,
     Typography,
     CircularProgress,
@@ -14,8 +13,7 @@ import {
     Card,
     CardContent,
     CardActions,
-    Fab,
-    IconButton
+    Fab
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -74,16 +72,12 @@ const CourseFormDialog = ({
     }, [initialData.name, initialData.description]); // Only depend on actual values
 
     const fetchCourseMaterials = async () => {
+        setMaterialsLoading(true);
         try {
-            setMaterialsLoading(true);
             const response = await apiService.get(`/course-modules/get/all/${initialData.id}`);
             const materials = response.data || [];
             setCourseMaterials(materials);
-            setOriginalMaterials(materials); // Store original state for rollback
-        } catch (error) {
-            console.error('Error fetching course materials:', error);
-            setCourseMaterials([]);
-            setOriginalMaterials([]);
+            setOriginalMaterials(materials);
         } finally {
             setMaterialsLoading(false);
         }
@@ -102,21 +96,13 @@ const CourseFormDialog = ({
     const deletePendingMaterials = async () => {
         if (pendingDeletions.length === 0) return;
 
-        try {
-            // Delete all materials marked for deletion
-            await Promise.all(
-                pendingDeletions.map(materialId =>
-                    apiService.delete(`/course-modules/${materialId}`)
-                )
-            );
+        await Promise.all(
+            pendingDeletions.map(materialId =>
+                apiService.delete(`/course-modules/${materialId}`)
+            )
+        );
 
-            // Clear pending deletions after successful deletion
-            setPendingDeletions([]);
-
-        } catch (error) {
-            console.error('Error deleting materials:', error);
-            // You might want to show a toast notification here
-        }
+        setPendingDeletions([]);
     };
 
     const handleAddMaterial = () => {
@@ -158,56 +144,31 @@ const CourseFormDialog = ({
     const uploadPendingFiles = async (courseId) => {
         if (pendingFiles.length === 0) return;
 
-        try {
-            // Create FormData for multipart/form-data request
-            const formData = new FormData();
+        const formData = new FormData();
+        pendingFiles.forEach(pendingFile => {
+            formData.append('files', pendingFile.file);
+        });
 
-            // Append all pending files to FormData with key 'files'
-            pendingFiles.forEach(pendingFile => {
-                formData.append('files', pendingFile.file);
-            });
+        await apiService.post(`/course-modules/${courseId}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
 
-            // Upload files to the newly created course
-            await apiService.post(`/course-modules/${courseId}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            // Clear pending files after successful upload
-            setPendingFiles([]);
-
-        } catch (error) {
-            console.error('Error uploading pending files:', error);
-            // You might want to show a toast notification here
-        }
+        setPendingFiles([]);
     };
 
     const handleFileUpload = async (files) => {
+        setUploadLoading(true);
         try {
-            setUploadLoading(true);
-
-            // Create FormData for multipart/form-data request
             const formData = new FormData();
-
-            // Append all files to FormData with key 'files'
             files.forEach(file => {
                 formData.append('files', file);
             });
 
-            // Upload files to the course
-            const response = await apiService.post(`/course-modules/${initialData.id}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+            await apiService.post(`/course-modules/${initialData.id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            // Refresh course materials after successful upload
             await fetchCourseMaterials();
-
-        } catch (error) {
-            console.error('Error uploading files:', error);
-            // You might want to show a toast notification here
         } finally {
             setUploadLoading(false);
         }
