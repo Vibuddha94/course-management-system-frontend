@@ -2,12 +2,18 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import {
     Box,
     Typography,
-    Grid
+    Grid,
+    TextField,
+    InputAdornment,
+    IconButton,
+    Paper
 } from '@mui/material';
 import {
     School as SchoolIcon,
     Assignment as AssignmentIcon,
-    Group as GroupIcon
+    Group as GroupIcon,
+    Search as SearchIcon,
+    Clear as ClearIcon
 } from '@mui/icons-material';
 import { StatsCard, PageHeader, CourseCard, LoadingSpinner, CourseFormDialog, ConfirmationDialog, CourseDetailsDialog } from '../../components';
 import apiService from '../../service/AxiosOrder';
@@ -29,6 +35,7 @@ function Courses() {
     const [courseToDelete, setCourseToDelete] = useState(null);
     const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const addButtonRef = useRef(null);
 
     // Memoized user role and permissions
@@ -52,6 +59,28 @@ function Courses() {
         };
 
         return { userRole: role, permissions: perms };
+    }, []);
+
+    // Filtered courses based on search term
+    const filteredCourses = useMemo(() => {
+        if (!searchTerm.trim()) {
+            return courses;
+        }
+
+        return courses.filter(course =>
+            course.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            course.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            course.instructor?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [courses, searchTerm]);
+
+    // Search handlers
+    const handleSearchChange = useCallback((event) => {
+        setSearchTerm(event.target.value);
+    }, []);
+
+    const handleClearSearch = useCallback(() => {
+        setSearchTerm('');
     }, []);
 
     // Fetch functions with optimized error handling
@@ -321,14 +350,16 @@ function Courses() {
                                 color="primary.main"
                             />
                         </Grid>
-                        <Grid span={{ xs: 12, sm: 6, md: 6 }}>
-                            <StatsCard
-                                icon={GroupIcon}
-                                value={studentsLoading ? '...' : students.length}
-                                label="Total Students"
-                                color="secondary.main"
-                            />
-                        </Grid>
+                        {userRole !== 'Student' && (
+                            <Grid span={{ xs: 12, sm: 6, md: 6 }}>
+                                <StatsCard
+                                    icon={GroupIcon}
+                                    value={studentsLoading ? '...' : students.length}
+                                    label="Total Students"
+                                    color="secondary.main"
+                                />
+                            </Grid>
+                        )}
                         <Grid span={{ xs: 12, sm: 6, md: 6 }}>
                             <StatsCard
                                 icon={AssignmentIcon}
@@ -339,14 +370,60 @@ function Courses() {
                         </Grid>
                     </Grid>
 
+                    {/* Search Section */}
+                    <Paper elevation={1} sx={{ p: 2, mb: 4 }}>
+                        <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="Search courses by name, description, or instructor..."
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon color="action" />
+                                    </InputAdornment>
+                                ),
+                                endAdornment: searchTerm && (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={handleClearSearch}
+                                            edge="end"
+                                            size="small"
+                                            aria-label="clear search"
+                                        >
+                                            <ClearIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    borderRadius: 2,
+                                    '&:hover fieldset': {
+                                        borderColor: 'primary.main',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'primary.main',
+                                    },
+                                },
+                            }}
+                        />
+                        {searchTerm && (
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                Found {filteredCourses.length} course{filteredCourses.length !== 1 ? 's' : ''} matching "{searchTerm}"
+                            </Typography>
+                        )}
+                    </Paper>
+
                     {/* Course Cards Section */}
                     <Grid container spacing={3}>
                         {coursesLoading ? (
                             <Grid size={12}>
                                 <LoadingSpinner message="Loading courses..." />
                             </Grid>
-                        ) : courses.length > 0 ? (
-                            courses.map((course) => (
+                        ) : filteredCourses.length > 0 ? (
+                            filteredCourses.map((course) => (
                                 <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={course.id}>
                                     <Box sx={{ height: 280, width: '100%' }}>
                                         <CourseCard
@@ -361,6 +438,17 @@ function Courses() {
                                     </Box>
                                 </Grid>
                             ))
+                        ) : searchTerm ? (
+                            <Grid size={12}>
+                                <Box sx={{ textAlign: 'center', py: 4 }}>
+                                    <Typography variant="h6" color="text.secondary">
+                                        No courses found matching "{searchTerm}"
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                        Try adjusting your search terms or clear the search to see all courses
+                                    </Typography>
+                                </Box>
+                            </Grid>
                         ) : (
                             <Grid size={12}>
                                 <Box sx={{ textAlign: 'center', py: 4 }}>
