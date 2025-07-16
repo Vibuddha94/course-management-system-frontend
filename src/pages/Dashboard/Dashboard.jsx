@@ -156,11 +156,9 @@ export default function Dashboard() {
                         Course Management
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Tooltip title={user?.name || 'User'}>
-                            <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', fontWeight: 700 }}>
-                                {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'}
-                            </Avatar>
-                        </Tooltip>
+                        <Typography variant="body1" sx={{ color: 'white', fontWeight: 600 }}>
+                            {user?.name || 'User'}
+                        </Typography>
                         <Tooltip title="Logout">
                             <IconButton color="inherit" onClick={handleLogout}>
                                 <LogoutIcon />

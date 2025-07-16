@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -18,14 +18,18 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField
+    TextField,
+    InputAdornment,
+    IconButton
 } from '@mui/material';
 import {
     Person as PersonIcon,
     Add as AddIcon,
     Email as EmailIcon,
     Phone as PhoneIcon,
-    School as SchoolIcon
+    School as SchoolIcon,
+    Search as SearchIcon,
+    Clear as ClearIcon
 } from '@mui/icons-material';
 import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
@@ -87,6 +91,30 @@ function Instructors() {
         qualification: ''
     });
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Filtered instructors based on search term
+    const filteredInstructors = useMemo(() => {
+        if (!searchTerm.trim()) {
+            return instructors;
+        }
+
+        return instructors.filter(instructor =>
+            instructor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            instructor.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            instructor.instructor?.qualification?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            instructor.contactNumber?.toString().includes(searchTerm)
+        );
+    }, [instructors, searchTerm]);
+
+    // Search handlers
+    const handleSearchChange = useCallback((event) => {
+        setSearchTerm(event.target.value);
+    }, []);
+
+    const handleClearSearch = useCallback(() => {
+        setSearchTerm('');
+    }, []);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -292,6 +320,52 @@ function Instructors() {
                 </Grid>
             </Grid>
 
+            {/* Search Section */}
+            <Paper elevation={1} sx={{ p: 2, mb: 4 }}>
+                <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Search instructors by name, email, qualification, or contact number..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon color="action" />
+                            </InputAdornment>
+                        ),
+                        endAdornment: searchTerm && (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    onClick={handleClearSearch}
+                                    edge="end"
+                                    size="small"
+                                    aria-label="clear search"
+                                >
+                                    <ClearIcon />
+                                </IconButton>
+                            </InputAdornment>
+                        )
+                    }}
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '&:hover fieldset': {
+                                borderColor: 'primary.main',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: 'primary.main',
+                            },
+                        },
+                    }}
+                />
+                {searchTerm && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Found {filteredInstructors.length} instructor{filteredInstructors.length !== 1 ? 's' : ''} matching "{searchTerm}"
+                    </Typography>
+                )}
+            </Paper>
+
             {/* Instructors Table */}
             <Paper elevation={3} sx={{ overflow: 'hidden' }}>
                 <TableContainer sx={{ overflow: 'hidden' }}>
@@ -305,58 +379,79 @@ function Instructors() {
                             </MuiTableRow>
                         </TableHead>
                         <TableBody>
-                            {instructors.map((instructor) => (
-                                <TableRow
-                                    key={instructor.id}
-                                    item={instructor}
-                                    isDeleting={deletingInstructorId === instructor.id}
-                                    onEdit={handleEditInstructor}
-                                    onDelete={handleDeleteInstructor}
-                                    onConfirmDelete={confirmDelete}
-                                    onCancelDelete={cancelDelete}
-                                    columnsCount={4}
-                                    renderCells={(instructor) => (
-                                        <>
-                                            <TableCell>
-                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-                                                        {instructor.name.split(' ').map(n => n[0]).join('')}
-                                                    </Avatar>
-                                                    <Box>
-                                                        <Typography variant="subtitle1" fontWeight={600}>
-                                                            {instructor.name}
-                                                        </Typography>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            {instructor.role}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Box>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                                        <EmailIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                                                        <Typography variant="body2">
-                                                            {instructor.email}
-                                                        </Typography>
-                                                    </Box>
+                            {filteredInstructors.length > 0 ? (
+                                filteredInstructors.map((instructor) => (
+                                    <TableRow
+                                        key={instructor.id}
+                                        item={instructor}
+                                        isDeleting={deletingInstructorId === instructor.id}
+                                        onEdit={handleEditInstructor}
+                                        onDelete={handleDeleteInstructor}
+                                        onConfirmDelete={confirmDelete}
+                                        onCancelDelete={cancelDelete}
+                                        columnsCount={4}
+                                        renderCells={(instructor) => (
+                                            <>
+                                                <TableCell>
                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                        <PhoneIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                                                        <Typography variant="body2">
-                                                            {instructor.contactNumber}
-                                                        </Typography>
+                                                        <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
+                                                            {instructor.name.split(' ').map(n => n[0]).join('')}
+                                                        </Avatar>
+                                                        <Box>
+                                                            <Typography variant="subtitle1" fontWeight={600}>
+                                                                {instructor.name}
+                                                            </Typography>
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {instructor.role}
+                                                            </Typography>
+                                                        </Box>
                                                     </Box>
-                                                </Box>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" fontWeight={600}>
-                                                    {instructor.instructor?.qualification || 'Not specified'}
-                                                </Typography>
-                                            </TableCell>
-                                        </>
-                                    )}
-                                />
-                            ))}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                                            <EmailIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                                            <Typography variant="body2">
+                                                                {instructor.email}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                            <PhoneIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                                            <Typography variant="body2">
+                                                                {instructor.contactNumber}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant="body2" fontWeight={600}>
+                                                        {instructor.instructor?.qualification || 'Not specified'}
+                                                    </Typography>
+                                                </TableCell>
+                                            </>
+                                        )}
+                                    />
+                                ))
+                            ) : searchTerm ? (
+                                <MuiTableRow>
+                                    <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
+                                        <Typography variant="h6" color="text.secondary">
+                                            No instructors found matching "{searchTerm}"
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                            Try adjusting your search terms or clear the search to see all instructors
+                                        </Typography>
+                                    </TableCell>
+                                </MuiTableRow>
+                            ) : (
+                                <MuiTableRow>
+                                    <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4 }}>
+                                        <Typography variant="h6" color="text.secondary">
+                                            No instructors available
+                                        </Typography>
+                                    </TableCell>
+                                </MuiTableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>
