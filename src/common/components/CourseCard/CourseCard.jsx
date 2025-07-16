@@ -18,6 +18,7 @@ const CourseCard = ({
     onEnroll,
     showActions = true,
     showEnrollButton = true,
+    userRole = 'Student',
     sx = {}
 }) => {
     const getStatusColor = (status) => {
@@ -112,15 +113,28 @@ const CourseCard = ({
                     pt: 1,
                     mt: 'auto' // Push to bottom
                 }}>
-                    <ActionButtons
-                        onView={onView ? () => onView(course.id) : undefined}
-                        onEdit={onEdit ? () => onEdit(course.id) : undefined}
-                        onDelete={onDelete ? () => onDelete(course.id) : undefined}
-                        size="small"
-                        viewTooltip="View Course"
-                        editTooltip="Edit Course"
-                        deleteTooltip="Delete Course"
-                    />
+                    {userRole === 'Student' ? (
+                        // For students: show a normal "View" button instead of eye icon
+                        <Button
+                            variant="outlined"
+                            sx={{ borderRadius: 2, width: '100%' }}
+                            onClick={() => onView?.(course.id)}
+                            disabled={!onView}
+                        >
+                            View Course
+                        </Button>
+                    ) : (
+                        // For instructors/admins: show action buttons with eye icon
+                        <ActionButtons
+                            onView={onView ? () => onView(course.id) : undefined}
+                            onEdit={onEdit ? () => onEdit(course.id) : undefined}
+                            onDelete={onDelete ? () => onDelete(course.id) : undefined}
+                            size="small"
+                            viewTooltip="View Course"
+                            editTooltip="Edit Course"
+                            deleteTooltip="Delete Course"
+                        />
+                    )}
 
                     {showEnrollButton && (
                         <Button
