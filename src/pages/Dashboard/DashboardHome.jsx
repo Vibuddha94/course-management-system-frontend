@@ -196,7 +196,6 @@ function DashboardHome({ user }) {
     }
 
     const handleQuickAction = (action) => {
-        console.log('Quick action clicked:', action); // Debug log
         switch (action) {
             case 'addCourse':
                 navigate('/courses');
@@ -275,16 +274,6 @@ function DashboardHome({ user }) {
                             elevation={3}
                         />
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-                        <StatsCard
-                            icon={AssessmentIcon}
-                            value={Math.floor(stats.totalCourses * 0.2)}
-                            label="System Health"
-                            bgColor="info.main"
-                            textColor="white"
-                            elevation={3}
-                        />
-                    </Grid>
                 </Grid>
 
                 {/* Quick Actions */}
@@ -319,7 +308,7 @@ function DashboardHome({ user }) {
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                startIcon={<PersonIcon />}
+                                startIcon={<GroupIcon />}
                                 onClick={() => handleQuickAction('manageInstructors')}
                                 sx={{ py: 2, borderRadius: 2 }}
                             >
@@ -330,39 +319,14 @@ function DashboardHome({ user }) {
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                startIcon={<AssessmentIcon />}
+                                startIcon={<PersonIcon />}
                                 onClick={() => handleQuickAction('viewProfile')}
                                 sx={{ py: 2, borderRadius: 2 }}
                             >
-                                System Reports
+                                &nbsp;&nbsp;Update &nbsp;&nbsp; Profile
                             </Button>
                         </Grid>
                     </Grid>
-                </Paper>
-
-                {/* Recent Activity */}
-                <Paper elevation={3} sx={{ p: 3 }}>
-                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                        System Activity
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {recentActivity.map((activity, index) => (
-                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                                <activity.icon sx={{ mr: 2, color: activity.color }} />
-                                <Box sx={{ flexGrow: 1 }}>
-                                    <Typography variant="body2" fontWeight={600}>
-                                        {activity.title}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {activity.description}
-                                    </Typography>
-                                    <Typography variant="caption" color="text.secondary">
-                                        {activity.time}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                        ))}
-                    </Box>
                 </Paper>
             </Box>
         );
