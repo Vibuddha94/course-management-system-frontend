@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -20,7 +20,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField
+    TextField,
+    InputAdornment
 } from '@mui/material';
 import {
     Group as GroupIcon,
@@ -30,7 +31,9 @@ import {
     Email as EmailIcon,
     Phone as PhoneIcon,
     School as SchoolIcon,
-    Grade as GradeIcon
+    Grade as GradeIcon,
+    Search as SearchIcon,
+    Clear as ClearIcon
 } from '@mui/icons-material';
 import { toast } from 'sonner';
 import apiService from '../../service/AxiosOrder';
@@ -54,6 +57,30 @@ function Students() {
         age: ''
     });
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Filtered students based on search term
+    const filteredStudents = useMemo(() => {
+        if (!searchTerm.trim()) {
+            return students;
+        }
+
+        return students.filter(student =>
+            student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.student?.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.contactNumber?.toString().includes(searchTerm)
+        );
+    }, [students, searchTerm]);
+
+    // Search handlers
+    const handleSearchChange = useCallback((event) => {
+        setSearchTerm(event.target.value);
+    }, []);
+
+    const handleClearSearch = useCallback(() => {
+        setSearchTerm('');
+    }, []);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -269,6 +296,52 @@ function Students() {
                 </Grid>
             </Grid>
 
+            {/* Search Section */}
+            <Paper elevation={1} sx={{ p: 2, mb: 4 }}>
+                <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Search students by name, email, address, or contact number..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon color="action" />
+                            </InputAdornment>
+                        ),
+                        endAdornment: searchTerm && (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    onClick={handleClearSearch}
+                                    edge="end"
+                                    size="small"
+                                    aria-label="clear search"
+                                >
+                                    <ClearIcon />
+                                </IconButton>
+                            </InputAdornment>
+                        )
+                    }}
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '&:hover fieldset': {
+                                borderColor: 'primary.main',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: 'primary.main',
+                            },
+                        },
+                    }}
+                />
+                {searchTerm && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Found {filteredStudents.length} student{filteredStudents.length !== 1 ? 's' : ''} matching "{searchTerm}"
+                    </Typography>
+                )}
+            </Paper>
+
             {/* Students Table */}
             <Paper elevation={3} sx={{ overflow: 'hidden' }}>
                 <TableContainer sx={{ overflow: 'hidden' }}>
@@ -283,66 +356,87 @@ function Students() {
                             </MuiTableRow>
                         </TableHead>
                         <TableBody>
-                            {students.map((student) => (
-                                <TableRow
-                                    key={student.id}
-                                    item={student}
-                                    isDeleting={deletingStudentId === student.id}
-                                    onEdit={handleEditStudent}
-                                    onDelete={handleDeleteStudent}
-                                    onConfirmDelete={confirmDelete}
-                                    onCancelDelete={cancelDelete}
-                                    columnsCount={5}
-                                    renderCells={(student) => (
-                                        <>
-                                            <TableCell>
-                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <Avatar sx={{ mr: 2, bgcolor: 'secondary.main' }}>
-                                                        {student.name.split(' ').map(n => n[0]).join('')}
-                                                    </Avatar>
-                                                    <Box>
-                                                        <Typography variant="subtitle1" fontWeight={600}>
-                                                            {student.name}
-                                                        </Typography>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            {student.role}
-                                                        </Typography>
-                                                    </Box>
-                                                </Box>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Box>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                                        <EmailIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                                                        <Typography variant="body2">
-                                                            {student.email}
-                                                        </Typography>
-                                                    </Box>
+                            {filteredStudents.length > 0 ? (
+                                filteredStudents.map((student) => (
+                                    <TableRow
+                                        key={student.id}
+                                        item={student}
+                                        isDeleting={deletingStudentId === student.id}
+                                        onEdit={handleEditStudent}
+                                        onDelete={handleDeleteStudent}
+                                        onConfirmDelete={confirmDelete}
+                                        onCancelDelete={cancelDelete}
+                                        columnsCount={5}
+                                        renderCells={(student) => (
+                                            <>
+                                                <TableCell>
                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                        <PhoneIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                                                        <Typography variant="body2">
-                                                            {student.contactNumber}
-                                                        </Typography>
+                                                        <Avatar sx={{ mr: 2, bgcolor: 'secondary.main' }}>
+                                                            {student.name.split(' ').map(n => n[0]).join('')}
+                                                        </Avatar>
+                                                        <Box>
+                                                            <Typography variant="subtitle1" fontWeight={600}>
+                                                                {student.name}
+                                                            </Typography>
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {student.role}
+                                                            </Typography>
+                                                        </Box>
                                                     </Box>
-                                                </Box>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" fontWeight={600}>
-                                                    {student.student?.address || 'Not specified'}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={student.student?.age || 'N/A'}
-                                                    size="small"
-                                                    color={student.student?.age >= 18 ? 'success' : 'warning'}
-                                                    variant="outlined"
-                                                />
-                                            </TableCell>
-                                        </>
-                                    )}
-                                />
-                            ))}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                                            <EmailIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                                            <Typography variant="body2">
+                                                                {student.email}
+                                                            </Typography>
+                                                        </Box>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                            <PhoneIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                                                            <Typography variant="body2">
+                                                                {student.contactNumber}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant="body2" fontWeight={600}>
+                                                        {student.student?.address || 'Not specified'}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={student.student?.age || 'N/A'}
+                                                        size="small"
+                                                        color={student.student?.age >= 18 ? 'success' : 'warning'}
+                                                        variant="outlined"
+                                                    />
+                                                </TableCell>
+                                            </>
+                                        )}
+                                    />
+                                ))
+                            ) : searchTerm ? (
+                                <MuiTableRow>
+                                    <TableCell colSpan={5} sx={{ textAlign: 'center', py: 4 }}>
+                                        <Typography variant="h6" color="text.secondary">
+                                            No students found matching "{searchTerm}"
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                            Try adjusting your search terms or clear the search to see all students
+                                        </Typography>
+                                    </TableCell>
+                                </MuiTableRow>
+                            ) : (
+                                <MuiTableRow>
+                                    <TableCell colSpan={5} sx={{ textAlign: 'center', py: 4 }}>
+                                        <Typography variant="h6" color="text.secondary">
+                                            No students available
+                                        </Typography>
+                                    </TableCell>
+                                </MuiTableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>
