@@ -49,13 +49,10 @@ const CourseDetailsDialog = ({
     if (!course) return null;
 
     const fetchCourseMaterials = async () => {
+        setMaterialsLoading(true);
         try {
-            setMaterialsLoading(true);
             const response = await apiService.get(`/course-modules/get/all/${course.id}`);
             setCourseMaterials(response.data || []);
-        } catch (error) {
-            console.error('Error fetching course materials:', error);
-            setCourseMaterials([]);
         } finally {
             setMaterialsLoading(false);
         }
@@ -82,38 +79,24 @@ const CourseDetailsDialog = ({
     const handleDelete = () => {
         onDelete?.(course.id);
         onClose();
-    };
+    }; const handleDownloadMaterial = async (material) => {
+        const response = await apiService.get(`/course-modules/${material.id}`, {
+            responseType: 'blob',
+        });
 
-    const handleDownloadMaterial = async (material) => {
-        try {
-            const response = await apiService.get(`/course-modules/${material.id}`, {
-                responseType: 'blob', // Important for binary data
-            });
+        const blob = new Blob([response.data], {
+            type: response.headers['content-type'] || 'application/octet-stream'
+        });
 
-            // Create a blob from the response
-            const blob = new Blob([response.data], {
-                type: response.headers['content-type'] || 'application/octet-stream'
-            });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = material.originalName || 'download';
 
-            // Create a download link
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-
-            // Use original name from material for download filename
-            link.download = material.originalName || 'download';
-
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-
-            // Cleanup
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error downloading material:', error);
-            // You might want to show a toast notification here
-        }
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
     };
 
     // Material Card Component
