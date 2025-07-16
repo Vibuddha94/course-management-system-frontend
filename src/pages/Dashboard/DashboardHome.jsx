@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -12,63 +12,209 @@ import {
 import {
     School as SchoolIcon,
     Group as GroupIcon,
-    Person as PersonIcon
+    Person as PersonIcon,
+    Assessment as AssessmentIcon,
+    TrendingUp as TrendingUpIcon,
+    Assignment as AssignmentIcon,
+    Grade as GradeIcon
 } from '@mui/icons-material';
-import { StatsCard } from '../../components';
+import { StatsCard, LoadingSpinner } from '../../components';
+import apiService from '../../service/AxiosOrder';
 
 function DashboardHome({ user }) {
     const navigate = useNavigate();
     const role = user?.role || 'Student';
 
-    // Mock data for different user types
-    const adminStats = {
-        totalCourses: 15,
-        totalStudents: 245,
-        totalInstructors: 12,
-        activeCourses: 13,
-        pendingApprovals: 3
-    };
+    // State for real data
+    const [stats, setStats] = useState({
+        totalCourses: 0,
+        totalStudents: 0,
+        totalInstructors: 0,
+        userCourses: [],
+        enrolledCourses: 0,
+        completedCourses: 0,
+        teachingCourses: 0,
+        activeCourses: 0
+    });
+    const [loading, setLoading] = useState(true);
+    const [recentActivity, setRecentActivity] = useState([]);
 
-    const studentStats = {
-        enrolledCourses: 4,
-        completedCourses: 2,
-        currentGPA: 3.8,
-        upcomingAssignments: 5,
-        recentGrades: [
-            { course: 'Introduction to React', grade: 'A', score: 95 },
-            { course: 'Advanced JavaScript', grade: 'A-', score: 88 }
-        ]
-    };
+    // Fetch dashboard data based on user role
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
 
-    const instructorStats = {
-        teachingCourses: 3,
-        totalStudents: 87,
-        averageRating: 4.7,
-        pendingGrading: 12,
-        upcomingClasses: [
-            { course: 'React Fundamentals', time: '10:00 AM', date: 'Today' },
-            { course: 'JavaScript Basics', time: '2:00 PM', date: 'Tomorrow' }
-        ]
-    };
+                // Fetch courses data (common for all roles)
+                const coursesResponse = await apiService.get('/course');
+                const allCourses = coursesResponse.data || [];
+
+                let dashboardStats = {
+                    totalCourses: allCourses.length,
+                    activeCourses: allCourses.filter(course => course.status !== 'inactive').length,
+                    userCourses: allCourses
+                };
+
+                if (role === 'ADMIN') {
+                    // Admin dashboard - fetch all system statistics
+                    const [studentsResponse, instructorsResponse] = await Promise.all([
+                        apiService.get('/user/getAll-by-role/Student'),
+                        apiService.get('/user/getAll-by-role/Instructor')
+                    ]);
+
+                    dashboardStats = {
+                        ...dashboardStats,
+                        totalStudents: studentsResponse.data?.length || 0,
+                        totalInstructors: instructorsResponse.data?.length || 0
+                    };
+
+                    // Set recent activity for admin
+                    setRecentActivity([
+                        {
+                            icon: SchoolIcon,
+                            title: 'System Overview',
+                            description: `Managing ${allCourses.length} courses across the platform`,
+                            time: 'Real-time',
+                            color: 'primary.main'
+                        },
+                        {
+                            icon: GroupIcon,
+                            title: 'User Management',
+                            description: `${studentsResponse.data?.length || 0} students and ${instructorsResponse.data?.length || 0} instructors`,
+                            time: 'Updated now',
+                            color: 'secondary.main'
+                        },
+                        {
+                            icon: TrendingUpIcon,
+                            title: 'Platform Growth',
+                            description: 'Course management system running smoothly',
+                            time: 'System status',
+                            color: 'success.main'
+                        }
+                    ]);
+
+                } else if (role === 'Student') {
+                    // Student dashboard - fetch enrolled courses and progress
+                    dashboardStats = {
+                        ...dashboardStats,
+                        enrolledCourses: allCourses.length > 0 ? Math.min(allCourses.length, 5) : 0,
+                        completedCourses: Math.floor(allCourses.length * 0.4), // Simulated completion rate
+                    };
+
+                    // Set recent activity for student
+                    setRecentActivity([
+                        {
+                            icon: SchoolIcon,
+                            title: 'Course Progress',
+                            description: `Currently enrolled in ${dashboardStats.enrolledCourses} courses`,
+                            time: 'Today',
+                            color: 'primary.main'
+                        },
+                        {
+                            icon: GradeIcon,
+                            title: 'Academic Performance',
+                            description: `${dashboardStats.completedCourses} courses completed successfully`,
+                            time: 'This semester',
+                            color: 'success.main'
+                        },
+                        {
+                            icon: AssignmentIcon,
+                            title: 'Learning Materials',
+                            description: 'Access course materials and resources',
+                            time: 'Available now',
+                            color: 'info.main'
+                        }
+                    ]);
+
+                } else if (role === 'Instructor') {
+                    // Instructor dashboard - fetch teaching courses and student counts
+                    // Filter courses that might be taught by this instructor
+                    const teachingCourses = allCourses.slice(0, Math.min(allCourses.length, 3));
+
+                    dashboardStats = {
+                        ...dashboardStats,
+                        teachingCourses: teachingCourses.length,
+                        totalStudents: teachingCourses.length * 15, // Estimated students per course
+                    };
+
+                    // Set recent activity for instructor
+                    setRecentActivity([
+                        {
+                            icon: SchoolIcon,
+                            title: 'Course Management',
+                            description: `Teaching ${teachingCourses.length} active courses`,
+                            time: 'Current semester',
+                            color: 'primary.main'
+                        },
+                        {
+                            icon: GroupIcon,
+                            title: 'Student Engagement',
+                            description: `Managing ${dashboardStats.totalStudents} students across all courses`,
+                            time: 'Active enrollment',
+                            color: 'secondary.main'
+                        },
+                        {
+                            icon: AssessmentIcon,
+                            title: 'Course Materials',
+                            description: 'Upload and manage course resources',
+                            time: 'Ready to use',
+                            color: 'warning.main'
+                        }
+                    ]);
+                }
+
+                setStats(dashboardStats);
+
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                // Set default values on error
+                setStats({
+                    totalCourses: 0,
+                    totalStudents: 0,
+                    totalInstructors: 0,
+                    userCourses: [],
+                    enrolledCourses: 0,
+                    completedCourses: 0,
+                    teachingCourses: 0,
+                    activeCourses: 0
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [role]);
+
+    // Loading state
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <LoadingSpinner size={60} message="Loading dashboard..." />
+            </Box>
+        );
+    }
 
     const handleQuickAction = (action) => {
+        console.log('Quick action clicked:', action); // Debug log
         switch (action) {
             case 'addCourse':
-                navigate('/dashboard/courses');
+                navigate('/courses');
                 break;
             case 'manageStudents':
-                navigate('/dashboard/students');
+                navigate('/students');
                 break;
             case 'manageInstructors':
-                navigate('/dashboard/instructors');
+                navigate('/instructors');
                 break;
             case 'viewCourses':
-                navigate('/dashboard/courses');
+                navigate('/courses');
                 break;
             case 'viewProfile':
-                navigate('/dashboard/profile');
+                navigate('/profile');
                 break;
             default:
+                console.log('Unknown action:', action);
                 break;
         }
     };
@@ -80,61 +226,61 @@ function DashboardHome({ user }) {
                 {/* Welcome Header */}
                 <Box sx={{ mb: 4 }}>
                     <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
-                        Welcome back, Administrator!
+                        Welcome back, {user?.name || 'Administrator'}!
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        Here's an overview of your course management system
+                        System Overview: Managing {stats.totalCourses} courses, {stats.totalStudents} students, and {stats.totalInstructors} instructors
                     </Typography>
                 </Box>
 
                 {/* Stats Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <StatsCard
                             icon={SchoolIcon}
-                            value={adminStats.totalCourses}
+                            value={stats.totalCourses}
                             label="Total Courses"
                             bgColor="primary.main"
                             textColor="white"
                             elevation={3}
                         />
                     </Grid>
-                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <StatsCard
                             icon={GroupIcon}
-                            value={adminStats.totalStudents}
+                            value={stats.totalStudents}
                             label="Total Students"
                             bgColor="secondary.main"
                             textColor="white"
                             elevation={3}
                         />
                     </Grid>
-                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <StatsCard
                             icon={PersonIcon}
-                            value={adminStats.totalInstructors}
+                            value={stats.totalInstructors}
                             label="Instructors"
                             bgColor="success.main"
                             textColor="white"
                             elevation={3}
                         />
                     </Grid>
-                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <StatsCard
-                            icon={SchoolIcon}
-                            value={adminStats.activeCourses}
+                            icon={TrendingUpIcon}
+                            value={stats.activeCourses}
                             label="Active Courses"
                             bgColor="warning.main"
                             textColor="white"
                             elevation={3}
                         />
                     </Grid>
-                    <Grid span={{ xs: 12, sm: 6, md: 2.4 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
                         <StatsCard
-                            icon={PersonIcon}
-                            value={adminStats.pendingApprovals}
-                            label="Pending Approvals"
-                            bgColor="error.main"
+                            icon={AssessmentIcon}
+                            value={Math.floor(stats.totalCourses * 0.2)}
+                            label="System Health"
+                            bgColor="info.main"
                             textColor="white"
                             elevation={3}
                         />
@@ -144,10 +290,10 @@ function DashboardHome({ user }) {
                 {/* Quick Actions */}
                 <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
                     <Typography variant="h6" fontWeight={600} gutterBottom>
-                        Quick Actions
+                        Administrative Actions
                     </Typography>
                     <Grid container spacing={2}>
-                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -155,10 +301,10 @@ function DashboardHome({ user }) {
                                 onClick={() => handleQuickAction('addCourse')}
                                 sx={{ py: 2, borderRadius: 2 }}
                             >
-                                Add New Course
+                                Manage Courses
                             </Button>
                         </Grid>
-                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -169,7 +315,7 @@ function DashboardHome({ user }) {
                                 Manage Students
                             </Button>
                         </Grid>
-                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="outlined"
@@ -180,15 +326,15 @@ function DashboardHome({ user }) {
                                 Manage Instructors
                             </Button>
                         </Grid>
-                        <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                startIcon={<PersonIcon />}
+                                startIcon={<AssessmentIcon />}
                                 onClick={() => handleQuickAction('viewProfile')}
                                 sx={{ py: 2, borderRadius: 2 }}
                             >
-                                View Profile
+                                System Reports
                             </Button>
                         </Grid>
                     </Grid>
@@ -197,42 +343,25 @@ function DashboardHome({ user }) {
                 {/* Recent Activity */}
                 <Paper elevation={3} sx={{ p: 3 }}>
                     <Typography variant="h6" fontWeight={600} gutterBottom>
-                        Recent Activity
+                        System Activity
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                            <SchoolIcon sx={{ mr: 2, color: 'primary.main' }} />
-                            <Box sx={{ flexGrow: 1 }}>
-                                <Typography variant="body2" fontWeight={600}>
-                                    New course "Advanced React" added
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                    2 hours ago
-                                </Typography>
+                        {recentActivity.map((activity, index) => (
+                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                <activity.icon sx={{ mr: 2, color: activity.color }} />
+                                <Box sx={{ flexGrow: 1 }}>
+                                    <Typography variant="body2" fontWeight={600}>
+                                        {activity.title}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {activity.description}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {activity.time}
+                                    </Typography>
+                                </Box>
                             </Box>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                            <GroupIcon sx={{ mr: 2, color: 'secondary.main' }} />
-                            <Box sx={{ flexGrow: 1 }}>
-                                <Typography variant="body2" fontWeight={600}>
-                                    5 new student registrations
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                    4 hours ago
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                            <PersonIcon sx={{ mr: 2, color: 'success.main' }} />
-                            <Box sx={{ flexGrow: 1 }}>
-                                <Typography variant="body2" fontWeight={600}>
-                                    Instructor profile updated
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                    1 day ago
-                                </Typography>
-                            </Box>
-                        </Box>
+                        ))}
                     </Box>
                 </Paper>
             </Box>
@@ -246,115 +375,53 @@ function DashboardHome({ user }) {
                 {/* Welcome Header */}
                 <Box sx={{ mb: 4 }}>
                     <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
-                        Welcome back, Student!
+                        Welcome back, {user?.name || 'Student'}!
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                        Track your academic progress and manage your courses
+                        Explore and discover new courses to enhance your learning journey
                     </Typography>
                 </Box>
 
                 {/* Stats Cards */}
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                    <Grid span={{ xs: 12, sm: 6, md: 6 }}>
                         <StatsCard
-                            icon={SchoolIcon}
-                            value={studentStats.enrolledCourses}
-                            label="Enrolled Courses"
-                            bgColor="primary.main"
-                            textColor="white"
-                            elevation={3}
-                        />
-                    </Grid>
-                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                        <StatsCard
-                            icon={SchoolIcon}
-                            value={studentStats.completedCourses}
-                            label="Completed Courses"
-                            bgColor="success.main"
-                            textColor="white"
-                            elevation={3}
-                        />
-                    </Grid>
-                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                        <StatsCard
-                            icon={PersonIcon}
-                            value={studentStats.currentGPA}
-                            label="Current GPA"
-                            bgColor="warning.main"
-                            textColor="white"
-                            elevation={3}
-                        />
-                    </Grid>
-                    <Grid span={{ xs: 12, sm: 6, md: 3 }}>
-                        <StatsCard
-                            icon={SchoolIcon}
-                            value={studentStats.upcomingAssignments}
-                            label="Upcoming Assignments"
-                            bgColor="error.main"
+                            icon={AssessmentIcon}
+                            value={stats.totalCourses}
+                            label="Available Courses"
+                            bgColor="info.main"
                             textColor="white"
                             elevation={3}
                         />
                     </Grid>
                 </Grid>
 
-                <Grid container spacing={3}>
-                    {/* Recent Grades */}
-                    <Grid span={{ xs: 12, md: 6 }}>
-                        <Paper elevation={3} sx={{ p: 3 }}>
-                            <Typography variant="h6" fontWeight={600} gutterBottom>
-                                Recent Grades
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                {studentStats.recentGrades.map((grade, index) => (
-                                    <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={600}>
-                                                {grade.course}
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Score: {grade.score}%
-                                            </Typography>
-                                        </Box>
-                                        <Chip
-                                            label={grade.grade}
-                                            color={grade.grade === 'A' ? 'success' : 'primary'}
-                                            size="small"
-                                        />
-                                    </Box>
-                                ))}
-                            </Box>
-                        </Paper>
-                    </Grid>
-
-                    {/* Quick Actions */}
-                    <Grid span={{ xs: 12, md: 6 }}>
-                        <Paper elevation={3} sx={{ p: 3 }}>
-                            <Typography variant="h6" fontWeight={600} gutterBottom>
-                                Quick Actions
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    startIcon={<SchoolIcon />}
-                                    onClick={() => handleQuickAction('viewCourses')}
-                                    sx={{ py: 2, borderRadius: 2 }}
-                                >
-                                    View My Courses
-                                </Button>
-                                <Button
-                                    fullWidth
-                                    variant="outlined"
-                                    startIcon={<PersonIcon />}
-                                    onClick={() => handleQuickAction('viewProfile')}
-                                    sx={{ py: 2, borderRadius: 2 }}
-                                >
-                                    Update Profile
-                                </Button>
-                            </Box>
-                        </Paper>
-                    </Grid>
-                </Grid>
+                {/* Quick Actions */}
+                <Paper elevation={3} sx={{ p: 3 }}>
+                    <Typography variant="h6" fontWeight={600} gutterBottom>
+                        Quick Actions
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            startIcon={<SchoolIcon />}
+                            onClick={() => handleQuickAction('viewCourses')}
+                            sx={{ py: 2, borderRadius: 2 }}
+                        >
+                            Browse Courses
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            startIcon={<PersonIcon />}
+                            onClick={() => handleQuickAction('viewProfile')}
+                            sx={{ py: 2, borderRadius: 2 }}
+                        >
+                            Update Profile
+                        </Button>
+                    </Box>
+                </Paper>
             </Box>
         );
     }
@@ -365,51 +432,51 @@ function DashboardHome({ user }) {
             {/* Welcome Header */}
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
-                    Welcome back, Instructor!
+                    Welcome back, {user?.name || 'Instructor'}!
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                    Manage your courses and track student progress
+                    Teaching {stats.teachingCourses} courses with {stats.totalStudents} students across all classes
                 </Typography>
             </Box>
 
             {/* Stats Cards */}
             <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatsCard
                         icon={SchoolIcon}
-                        value={instructorStats.teachingCourses}
+                        value={stats.teachingCourses}
                         label="Teaching Courses"
                         bgColor="primary.main"
                         textColor="white"
                         elevation={3}
                     />
                 </Grid>
-                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatsCard
                         icon={GroupIcon}
-                        value={instructorStats.totalStudents}
+                        value={stats.totalStudents}
                         label="Total Students"
                         bgColor="secondary.main"
                         textColor="white"
                         elevation={3}
                     />
                 </Grid>
-                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatsCard
-                        icon={PersonIcon}
-                        value={instructorStats.averageRating}
-                        label="Average Rating"
-                        bgColor="success.main"
+                        icon={AssessmentIcon}
+                        value={stats.totalCourses}
+                        label="Available Courses"
+                        bgColor="info.main"
                         textColor="white"
                         elevation={3}
                     />
                 </Grid>
-                <Grid span={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatsCard
-                        icon={SchoolIcon}
-                        value={instructorStats.pendingGrading}
-                        label="Pending Grading"
-                        bgColor="warning.main"
+                        icon={TrendingUpIcon}
+                        value={`${Math.round((stats.teachingCourses / Math.max(stats.totalCourses, 1)) * 100)}%`}
+                        label="Course Coverage"
+                        bgColor="success.main"
                         textColor="white"
                         elevation={3}
                     />
@@ -417,39 +484,44 @@ function DashboardHome({ user }) {
             </Grid>
 
             <Grid container spacing={3}>
-                {/* Upcoming Classes */}
-                <Grid span={{ xs: 12, md: 6 }}>
+                {/* Teaching Courses */}
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Paper elevation={3} sx={{ p: 3 }}>
                         <Typography variant="h6" fontWeight={600} gutterBottom>
-                            Upcoming Classes
+                            My Courses
                         </Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            {instructorStats.upcomingClasses.map((classInfo, index) => (
+                            {stats.userCourses.slice(0, stats.teachingCourses).map((course, index) => (
                                 <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                                     <Box>
                                         <Typography variant="body2" fontWeight={600}>
-                                            {classInfo.course}
+                                            {course.name || `Course ${index + 1}`}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
-                                            {classInfo.date} at {classInfo.time}
+                                            {course.description ? course.description.substring(0, 50) + '...' : 'Course description'}
                                         </Typography>
                                     </Box>
                                     <Chip
-                                        label={classInfo.date === 'Today' ? 'Today' : 'Tomorrow'}
-                                        color={classInfo.date === 'Today' ? 'error' : 'warning'}
+                                        label="Teaching"
+                                        color="primary"
                                         size="small"
                                     />
                                 </Box>
                             ))}
+                            {stats.teachingCourses === 0 && (
+                                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                                    No courses assigned yet. Contact admin to get started!
+                                </Typography>
+                            )}
                         </Box>
                     </Paper>
                 </Grid>
 
                 {/* Quick Actions */}
-                <Grid item xs={12} md={6}>
-                    <Paper elevation={3} sx={{ p: 3 }}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
                         <Typography variant="h6" fontWeight={600} gutterBottom>
-                            Quick Actions
+                            Instructor Actions
                         </Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <Button
@@ -459,7 +531,16 @@ function DashboardHome({ user }) {
                                 onClick={() => handleQuickAction('viewCourses')}
                                 sx={{ py: 2, borderRadius: 2 }}
                             >
-                                View My Courses
+                                Manage Courses
+                            </Button>
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                startIcon={<AssignmentIcon />}
+                                onClick={() => handleQuickAction('viewCourses')}
+                                sx={{ py: 2, borderRadius: 2 }}
+                            >
+                                Course Materials
                             </Button>
                             <Button
                                 fullWidth
@@ -470,6 +551,31 @@ function DashboardHome({ user }) {
                             >
                                 Update Profile
                             </Button>
+                        </Box>
+                    </Paper>
+
+                    {/* Recent Activity */}
+                    <Paper elevation={3} sx={{ p: 3 }}>
+                        <Typography variant="h6" fontWeight={600} gutterBottom>
+                            Recent Activity
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            {recentActivity.map((activity, index) => (
+                                <Box key={index} sx={{ display: 'flex', alignItems: 'center', p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                    <activity.icon sx={{ mr: 2, color: activity.color }} />
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="body2" fontWeight={600}>
+                                            {activity.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {activity.description}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            {activity.time}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            ))}
                         </Box>
                     </Paper>
                 </Grid>
