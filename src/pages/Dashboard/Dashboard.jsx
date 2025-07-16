@@ -14,24 +14,13 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import Divider from '@mui/material/Divider';
 import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import apiService from '../../service/AxiosOrder';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import SchoolIcon from '@mui/icons-material/School';
-import GroupIcon from '@mui/icons-material/Group';
-import PersonIcon from '@mui/icons-material/Person';
-import LogoutIcon from '@mui/icons-material/Logout';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-
-// Import page components
-import Courses from '../Courses/Courses';
-import Instructors from '../Instructors/Instructors';
-import Students from '../Students/Students';
-import Profile from '../Profile/Profile';
-import DashboardHome from './DashboardHome';
+import LogoutIcon from '@mui/icons-material/Logout';
+import apiService from '../../service/AxiosOrder';
 import { getNavigation } from '../../common/navigation/routes';
 
 const drawerWidth = 240;

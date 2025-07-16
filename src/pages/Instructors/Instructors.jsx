@@ -90,23 +90,13 @@ function Instructors() {
 
     useEffect(() => {
         const fetchCourses = async () => {
-            try {
-                const response = await apiService.get('/course');
-                setTotalCourses(response.data.length || 0);
-            } catch (error) {
-                console.error('Error fetching courses:', error);
-                // Error will be handled globally by AxiosOrder
-            }
+            const response = await apiService.get('/course');
+            setTotalCourses(response.data.length || 0);
         };
 
         const fetchInstructors = async () => {
-            try {
-                const response = await apiService.get('/user/getAll-by-role/Instructor');
-                setInstructors(response.data || []);
-            } catch (error) {
-                console.error('Error fetching instructors:', error);
-                // Error will be handled globally by AxiosOrder
-            }
+            const response = await apiService.get('/user/getAll-by-role/Instructor');
+            setInstructors(response.data || []);
         };
 
         fetchCourses();
