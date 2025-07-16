@@ -403,7 +403,7 @@ function DashboardHome({ user }) {
                     Welcome back, {user?.name || 'Instructor'}!
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                    Empower your students with quality education. You're currently teaching {stats.teachingCourses} courses with {stats.totalStudents} students across all classes.
+                    Empower your students with quality education.
                 </Typography>
             </Box>
 
