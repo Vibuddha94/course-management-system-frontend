@@ -42,7 +42,7 @@ const mockInstructors = [
         id: 1,
         name: 'Sahan',
         email: 'sahan@gmail.com',
-        role: 'Instructor',
+        role: 'ROLE_INSTRUCTOR',
         contactNumber: 9874563210,
         instructor: {
             id: 1,
@@ -54,7 +54,7 @@ const mockInstructors = [
         id: 2,
         name: 'Sarah Johnson',
         email: 'sarah.johnson@university.edu',
-        role: 'Instructor',
+        role: 'ROLE_INSTRUCTOR',
         contactNumber: 1234567890,
         instructor: {
             id: 2,
@@ -66,7 +66,7 @@ const mockInstructors = [
         id: 3,
         name: 'Mike Wilson',
         email: 'mike.wilson@university.edu',
-        role: 'Instructor',
+        role: 'ROLE_INSTRUCTOR',
         contactNumber: 9876543210,
         instructor: {
             id: 3,
@@ -123,7 +123,7 @@ function Instructors() {
         };
 
         const fetchInstructors = async () => {
-            const response = await apiService.get('/user/getAll-by-role/Instructor');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_INSTRUCTOR');
             setInstructors(response.data || []);
         };
 
@@ -181,7 +181,7 @@ function Instructors() {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                role: 'Instructor',
+                role: 'ROLE_INSTRUCTOR',
                 contactNumber: Number(formData.contactNumber),
                 instructor: {
                     qualification: formData.qualification
@@ -194,7 +194,7 @@ function Instructors() {
             handleCloseDialog();
 
             // Refresh the instructors list
-            const response = await apiService.get('/user/getAll-by-role/Instructor');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_INSTRUCTOR');
             setInstructors(response.data || []);
         } catch (error) {
             // Error will be handled globally by AxiosOrder
@@ -216,7 +216,7 @@ function Instructors() {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                role: 'Instructor',
+                role: 'ROLE_INSTRUCTOR',
                 contactNumber: Number(formData.contactNumber),
                 instructor: {
                     qualification: formData.qualification
@@ -229,7 +229,7 @@ function Instructors() {
             handleCloseEditDialog();
 
             // Refresh the instructors list
-            const response = await apiService.get('/user/getAll-by-role/Instructor');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_INSTRUCTOR');
             setInstructors(response.data || []);
         } catch (error) {
             // Error will be handled globally by AxiosOrder
@@ -277,7 +277,7 @@ function Instructors() {
             setDeletingInstructorId(null);
 
             // Refresh the instructors list
-            const response = await apiService.get('/user/getAll-by-role/Instructor');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_INSTRUCTOR');
             setInstructors(response.data || []);
         } catch (error) {
             console.error('Error deleting instructor:', error);

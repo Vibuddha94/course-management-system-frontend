@@ -35,7 +35,7 @@ export function getNavigation(role) {
         },
     ];
 
-    if (role === 'ADMIN') {
+    if (role === 'ROLE_ADMIN') {
         base.splice(2, 0,
             {
                 path: '/instructors',

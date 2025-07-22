@@ -39,7 +39,7 @@ export default function Dashboard() {
     try {
         user = JSON.parse(localStorage.getItem('user'));
     } catch { }
-    const role = user?.role || 'Student';
+    const role = user?.role || 'ROLE_STUDENT';
 
 
 

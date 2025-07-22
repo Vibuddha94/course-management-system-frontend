@@ -89,7 +89,7 @@ function Students() {
         };
 
         const fetchStudents = async () => {
-            const response = await apiService.get('/user/getAll-by-role/Student');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_STUDENT');
             setStudents(response.data || []);
         };
 
@@ -149,7 +149,7 @@ function Students() {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                role: 'Student',
+                role: 'ROLE_STUDENT',
                 contactNumber: Number(formData.contactNumber),
                 instructor: null,
                 student: {
@@ -162,7 +162,7 @@ function Students() {
             toast.success('Student added successfully!');
             handleCloseDialog();
 
-            const response = await apiService.get('/user/getAll-by-role/Student');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_STUDENT');
             setStudents(response.data || []);
         } finally {
             setLoading(false);
@@ -181,7 +181,7 @@ function Students() {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                role: 'Student',
+                role: 'ROLE_STUDENT',
                 contactNumber: Number(formData.contactNumber),
                 instructor: null,
                 student: {
@@ -194,7 +194,7 @@ function Students() {
             toast.success('Student updated successfully!');
             handleCloseEditDialog();
 
-            const response = await apiService.get('/user/getAll-by-role/Student');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_STUDENT');
             setStudents(response.data || []);
         } finally {
             setLoading(false);
@@ -234,7 +234,7 @@ function Students() {
             toast.success('Student deleted successfully!');
             setDeletingStudentId(null);
 
-            const response = await apiService.get('/user/getAll-by-role/Student');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_STUDENT');
             setStudents(response.data || []);
         } catch (error) {
             console.error('Error deleting student:', error);
