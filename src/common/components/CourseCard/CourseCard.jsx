@@ -18,7 +18,7 @@ const CourseCard = ({
     onEnroll,
     showActions = true,
     showEnrollButton = true,
-    userRole = 'Student',
+    userRole = 'ROLE_STUDENT',
     sx = {}
 }) => {
     const getStatusColor = (status) => {
@@ -113,7 +113,7 @@ const CourseCard = ({
                     pt: 1,
                     mt: 'auto' // Push to bottom
                 }}>
-                    {userRole === 'Student' ? (
+                    {userRole === 'ROLE_STUDENT' ? (
                         // For students: show a normal "View" button instead of eye icon
                         <Button
                             variant="outlined"

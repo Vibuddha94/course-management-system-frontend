@@ -43,18 +43,18 @@ function Courses() {
         const getCurrentUserRole = () => {
             try {
                 const user = JSON.parse(localStorage.getItem('user'));
-                return user?.role || 'Student';
+                return user?.role || 'ROLE_STUDENT';
             } catch {
-                return 'Student';
+                return 'ROLE_STUDENT';
             }
         };
 
         const role = getCurrentUserRole();
         const perms = {
-            canCreate: role === 'Instructor',
+            canCreate: role === 'ROLE_INSTRUCTOR',
             canView: true,
-            canEdit: role === 'Instructor' || role === 'ADMIN',
-            canDelete: role === 'Instructor' || role === 'ADMIN',
+            canEdit: role === 'ROLE_INSTRUCTOR' || role === 'ROLE_ADMIN',
+            canDelete: role === 'ROLE_INSTRUCTOR' || role === 'ROLE_ADMIN',
             showActions: true
         };
 
@@ -87,7 +87,7 @@ function Courses() {
     const fetchStudents = useCallback(async () => {
         setStudentsLoading(true);
         try {
-            const response = await apiService.get('/user/getAll-by-role/Student');
+            const response = await apiService.get('/user/getAll-by-role/ROLE_STUDENT');
             setStudents(response.data);
         } finally {
             setStudentsLoading(false);
@@ -350,7 +350,7 @@ function Courses() {
                                 color="primary.main"
                             />
                         </Grid>
-                        {userRole !== 'Student' && (
+                        {userRole !== 'ROLE_STUDENT' && (
                             <Grid span={{ xs: 12, sm: 6, md: 6 }}>
                                 <StatsCard
                                     icon={GroupIcon}
