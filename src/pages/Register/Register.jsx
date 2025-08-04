@@ -33,14 +33,14 @@ function Register() {
                 name,
                 email,
                 password,
-                role: 'Student',
+                role: 'ROLE_STUDENT',
                 contactNumber: contactNumber ? Number(contactNumber) : undefined,
                 student: {
                     address,
                     age: age ? Number(age) : undefined,
                 },
             };
-            await apiService.post('/user', payload);
+            await apiService.post('/auth/register', payload);
             toast.success('Registration successful! You can now login.');
             navigate('/login');
         } catch (error) {

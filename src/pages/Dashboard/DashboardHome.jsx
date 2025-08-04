@@ -23,7 +23,7 @@ import apiService from '../../service/AxiosOrder';
 
 function DashboardHome({ user }) {
     const navigate = useNavigate();
-    const role = user?.role || 'Student';
+    const role = user?.role || 'ROLE_STUDENT';
 
     // State for real data
     const [stats, setStats] = useState({
@@ -55,11 +55,11 @@ function DashboardHome({ user }) {
                     userCourses: allCourses
                 };
 
-                if (role === 'ADMIN') {
+                if (role === 'ROLE_ADMIN') {
                     // Admin dashboard - fetch all system statistics
                     const [studentsResponse, instructorsResponse] = await Promise.all([
-                        apiService.get('/user/getAll-by-role/Student'),
-                        apiService.get('/user/getAll-by-role/Instructor')
+                        apiService.get('/user/getAll-by-role/ROLE_STUDENT'),
+                        apiService.get('/user/getAll-by-role/ROLE_INSTRUCTOR')
                     ]);
 
                     dashboardStats = {
@@ -93,7 +93,7 @@ function DashboardHome({ user }) {
                         }
                     ]);
 
-                } else if (role === 'Student') {
+                } else if (role === 'ROLE_STUDENT') {
                     // Student dashboard - fetch enrolled courses and progress
                     dashboardStats = {
                         ...dashboardStats,
@@ -126,13 +126,13 @@ function DashboardHome({ user }) {
                         }
                     ]);
 
-                } else if (role === 'Instructor') {
+                } else if (role === 'ROLE_INSTRUCTOR') {
                     // Instructor dashboard - fetch teaching courses and real student counts
                     // Filter courses that might be taught by this instructor
                     const teachingCourses = allCourses.slice(0, Math.min(allCourses.length, 3));
 
                     // Fetch real student data
-                    const studentsResponse = await apiService.get('/user/getAll-by-role/Student');
+                    const studentsResponse = await apiService.get('/user/getAll-by-role/ROLE_STUDENT');
                     const totalStudents = studentsResponse.data?.length || 0;
 
                     dashboardStats = {
@@ -223,7 +223,7 @@ function DashboardHome({ user }) {
     };
 
     // Admin Dashboard
-    if (role === 'ADMIN') {
+    if (role === 'ROLE_ADMIN') {
         return (
             <Box sx={{ p: 3 }}>
                 {/* Welcome Header */}
@@ -337,7 +337,7 @@ function DashboardHome({ user }) {
     }
 
     // Student Dashboard
-    if (role === 'Student') {
+    if (role === 'ROLE_STUDENT') {
         return (
             <Box sx={{ p: 3 }}>
                 {/* Welcome Header */}

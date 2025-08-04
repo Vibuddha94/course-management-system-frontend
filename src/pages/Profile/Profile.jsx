@@ -43,7 +43,6 @@ function Profile() {
     const [success, setSuccess] = useState(null);
     const [profile, setProfile] = useState(null);
     const [originalProfile, setOriginalProfile] = useState(null);
-    const [currentPassword, setCurrentPassword] = useState(''); // Store current password
 
     // Password change state
     const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -100,21 +99,20 @@ function Profile() {
                 // Instructor specific data
                 qualification: userData.instructor?.qualification || '',
                 // Additional fields for form
-                department: userData.role === 'ADMIN' ? 'System Administration' :
-                    userData.role === 'Instructor' ? 'Teaching Department' : 'Student Department',
-                position: userData.role === 'ADMIN' ? 'System Administrator' :
-                    userData.role === 'Instructor' ? 'Instructor' : 'Student',
+                department: userData.role === 'ROLE_ADMIN' ? 'System Administration' :
+                    userData.role === 'ROLE_INSTRUCTOR' ? 'Teaching Department' : 'Student Department',
+                position: userData.role === 'ROLE_ADMIN' ? 'System Administrator' :
+                    userData.role === 'ROLE_INSTRUCTOR' ? 'Instructor' : 'Student',
                 location: userData.student?.address || 'Not specified',
-                bio: userData.role === 'Instructor' ?
+                bio: userData.role === 'ROLE_INSTRUCTOR' ?
                     `Qualified instructor with ${userData.instructor?.qualification}` :
-                    userData.role === 'Student' ?
+                    userData.role === 'ROLE_STUDENT' ?
                         `Student aged ${userData.student?.age} from ${userData.student?.address}` :
                         'System administrator with full access to course management system.'
             };
 
             setProfile(transformedProfile);
             setOriginalProfile(transformedProfile);
-            setCurrentPassword(userData.password || ''); // Store the current password
         } catch (error) {
             console.error('Error fetching user profile:', error);
             setError('Failed to load user profile. Please try again.');
@@ -141,23 +139,22 @@ function Profile() {
                 name: profile.name,
                 email: profile.email,
                 contactNumber: parseInt(profile.contactNumber) || 0,
-                role: profile.role,
-                password: currentPassword // Include the current password
+                role: profile.role
             };
 
             // Add role-specific data
-            if (profile.role === 'Student') {
+            if (profile.role === 'ROLE_STUDENT') {
                 updateData.student = {
                     address: profile.address,
                     age: parseInt(profile.age) || 0
                 };
                 updateData.instructor = null;
-            } else if (profile.role === 'Instructor') {
+            } else if (profile.role === 'ROLE_INSTRUCTOR') {
                 updateData.instructor = {
                     qualification: profile.qualification
                 };
                 updateData.student = null;
-            } else if (profile.role === 'ADMIN') {
+            } else if (profile.role === 'ROLE_ADMIN') {
                 updateData.student = null;
                 updateData.instructor = null;
             }
@@ -257,16 +254,6 @@ function Profile() {
             return;
         }
 
-        if (passwordData.currentPassword !== currentPassword) {
-            setPasswordError('Current password is incorrect');
-            return;
-        }
-
-        if (passwordData.newPassword === currentPassword) {
-            setPasswordError('New password cannot be the same as current password');
-            return;
-        }
-
         if (passwordData.newPassword !== passwordData.confirmPassword) {
             setPasswordError('New passwords do not match');
             return;
@@ -297,20 +284,20 @@ function Profile() {
                 password: passwordData.newPassword, // Send new password in password field
                 currentPassword: passwordData.currentPassword, // Send current password for verification
                 // Include role-specific data
-                ...(profile.role === 'Student' && {
+                ...(profile.role === 'ROLE_STUDENT' && {
                     student: {
                         address: profile.address,
                         age: parseInt(profile.age) || 0
                     },
                     instructor: null
                 }),
-                ...(profile.role === 'Instructor' && {
+                ...(profile.role === 'ROLE_INSTRUCTOR' && {
                     instructor: {
                         qualification: profile.qualification
                     },
                     student: null
                 }),
-                ...(profile.role === 'ADMIN' && {
+                ...(profile.role === 'ROLE_ADMIN' && {
                     student: null,
                     instructor: null
                 })
@@ -319,9 +306,6 @@ function Profile() {
             // Update localStorage with new user data
             const updatedUserData = { ...user, ...response.data };
             localStorage.setItem('user', JSON.stringify(updatedUserData));
-
-            // Update the stored current password
-            setCurrentPassword(passwordData.newPassword);
 
             // Close dialog and show success
             handleClosePasswordDialog();
@@ -485,7 +469,7 @@ function Profile() {
                         </Typography>
                         <Chip
                             label={profile.role}
-                            color={profile.role === 'ADMIN' ? 'error' : profile.role === 'Instructor' ? 'warning' : 'primary'}
+                            color={profile.role === 'ROLE_ADMIN' ? 'error' : profile.role === 'ROLE_INSTRUCTOR' ? 'warning' : 'primary'}
                             sx={{ mb: 2 }}
                         />
                     </Paper>
@@ -568,7 +552,7 @@ function Profile() {
                             </Grid>
 
                             {/* Role-specific fields */}
-                            {profile.role === 'Student' && (
+                            {profile.role === 'ROLE_STUDENT' && (
                                 <>
                                     <Grid span={{ xs: 12, sm: 6 }}>
                                         <FormField
@@ -594,7 +578,7 @@ function Profile() {
                                 </>
                             )}
 
-                            {profile.role === 'Instructor' && (
+                            {profile.role === 'ROLE_INSTRUCTOR' && (
                                 <Grid span={{ xs: 12, sm: 6 }}>
                                     <FormField
                                         name="qualification"
@@ -655,9 +639,6 @@ function Profile() {
                             value={passwordData.currentPassword}
                             onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
                             required
-                            error={passwordData.currentPassword !== '' && passwordData.currentPassword !== currentPassword}
-                            helperText={passwordData.currentPassword !== '' && passwordData.currentPassword !== currentPassword ? 'Current password is incorrect' : ''}
-                            color={passwordData.currentPassword && passwordData.currentPassword === currentPassword ? 'success' : passwordData.currentPassword && passwordData.currentPassword !== currentPassword ? 'error' : 'primary'}
                             showPassword={showPasswords.current}
                             onTogglePassword={() => handleTogglePasswordVisibility('current')}
                             icon={<LockIcon />}
@@ -670,9 +651,9 @@ function Profile() {
                             value={passwordData.newPassword}
                             onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
                             required
-                            error={passwordData.newPassword !== '' && passwordData.newPassword === currentPassword}
-                            helperText={passwordData.newPassword !== '' && passwordData.newPassword === currentPassword ? 'New password cannot be the same as current password' : ''}
-                            color={passwordData.newPassword && passwordData.newPassword !== currentPassword && passwordData.newPassword.length >= 6 ? 'success' : passwordData.newPassword && (passwordData.newPassword === currentPassword || passwordData.newPassword.length < 6) ? 'error' : 'primary'}
+                            error={passwordData.newPassword !== '' && passwordData.newPassword.length < 6}
+                            helperText={passwordData.newPassword !== '' && passwordData.newPassword.length < 6 ? 'Password must be at least 6 characters long' : ''}
+                            color={passwordData.newPassword && passwordData.newPassword.length >= 6 ? 'success' : passwordData.newPassword && passwordData.newPassword.length < 6 ? 'error' : 'primary'}
                             showPassword={showPasswords.new}
                             onTogglePassword={() => handleTogglePasswordVisibility('new')}
                             icon={<LockIcon />}
